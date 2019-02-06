@@ -1,0 +1,17 @@
+﻿<Window x:Class="DelegateCallBackTest.DelegateTarget"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DelegateCallBackTest"
+        mc:Ignorable="d"
+        Title="DelegateTarget" Height="300" Width="300">
+    <Grid>
+        <Button x:Name="CallBack_1" Content="콜백1" HorizontalAlignment="Left" Margin="10,32,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="CallBack_2" Content="콜백2" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="CallBack_3" Content="콜백3" HorizontalAlignment="Left" Margin="10,103,0,0" VerticalAlignment="Top" Width="75"/>
+        <Label x:Name="Result_1" Content="Label" HorizontalAlignment="Left" Margin="105,32,0,0" VerticalAlignment="Top" Width="160"/>
+        <Label x:Name="Result_2" Content="Label" HorizontalAlignment="Left" Margin="105,68,0,0" VerticalAlignment="Top" Width="160"/>
+        <Label x:Name="Result_3" Content="Label" HorizontalAlignment="Left" Margin="105,99,0,0" VerticalAlignment="Top" Width="160"/>
+    </Grid>
+</Window>
