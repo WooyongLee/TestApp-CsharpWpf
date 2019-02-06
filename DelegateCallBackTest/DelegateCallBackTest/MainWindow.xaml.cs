@@ -15,11 +15,15 @@ using System.Windows.Shapes;
 
 namespace DelegateCallBackTest
 {
+    // 이벤트 핸들러
+    public delegate void EventHandler(string msg);
+
     /// <summary>
     /// MainWindow.xaml에 대한 상호 작용 논리
     /// </summary>
     public partial class MainWindow : Window
     {
+        WrappedTest Wrapped;
         DelegateTarget D_Target;
         delegate int MyDelegate(int a, int b);
         delegate int Compare(int a, int b);
@@ -29,6 +33,8 @@ namespace DelegateCallBackTest
 
         // 익명 대리자 연습
         delegate int Calculate(int a, int b);
+
+        
 
         public int Plus(int a, int b)
         {
@@ -66,6 +72,7 @@ namespace DelegateCallBackTest
             InitializeComponent();
 
             DelegateTest();
+            Wrapped = new WrappedTest();
         }
 
         public void DelegateTest()
@@ -102,10 +109,16 @@ namespace DelegateCallBackTest
 
         private void openDelegateTargetButton_Click(object sender, RoutedEventArgs e)
         {
+            TestClassInit();
+
             if (D_Target == null)
             {
                 D_Target = new DelegateTarget();
             }
+
+            
+            D_Target.FirstSomthingHappened += new EventHandler(FirstEventHandler);
+            
             D_Target.Show();
         }
     }

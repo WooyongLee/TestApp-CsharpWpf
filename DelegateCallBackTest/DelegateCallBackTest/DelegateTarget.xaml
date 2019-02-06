@@ -7,9 +7,9 @@
         mc:Ignorable="d"
         Title="DelegateTarget" Height="300" Width="300">
     <Grid>
-        <Button x:Name="CallBack_1" Content="콜백1" HorizontalAlignment="Left" Margin="10,32,0,0" VerticalAlignment="Top" Width="75"/>
-        <Button x:Name="CallBack_2" Content="콜백2" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="75"/>
-        <Button x:Name="CallBack_3" Content="콜백3" HorizontalAlignment="Left" Margin="10,103,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="CallBack_1" Content="콜백1" HorizontalAlignment="Left" Margin="10,32,0,0" VerticalAlignment="Top" Width="75" Click="CallBack_1_Click"/>
+        <Button x:Name="CallBack_2" Content="콜백2" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="75"  Click="CallBack_2_Click"/>
+        <Button x:Name="CallBack_3" Content="콜백3" HorizontalAlignment="Left" Margin="10,103,0,0" VerticalAlignment="Top" Width="75"  Click="CallBack_3_Click"/>
         <Label x:Name="Result_1" Content="Label" HorizontalAlignment="Left" Margin="105,32,0,0" VerticalAlignment="Top" Width="160"/>
         <Label x:Name="Result_2" Content="Label" HorizontalAlignment="Left" Margin="105,68,0,0" VerticalAlignment="Top" Width="160"/>
         <Label x:Name="Result_3" Content="Label" HorizontalAlignment="Left" Margin="105,99,0,0" VerticalAlignment="Top" Width="160"/>
