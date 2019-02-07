@@ -1,0 +1,6 @@
+E:\TestApp\Study\StringStudyConsole\StringStudyConsole\bin\Debug\StringStudyConsole.exe.config
+E:\TestApp\Study\StringStudyConsole\StringStudyConsole\bin\Debug\StringStudyConsole.exe
+E:\TestApp\Study\StringStudyConsole\StringStudyConsole\bin\Debug\StringStudyConsole.pdb
+E:\TestApp\Study\StringStudyConsole\StringStudyConsole\obj\Debug\StringStudyConsole.exe
+E:\TestApp\Study\StringStudyConsole\StringStudyConsole\obj\Debug\StringStudyConsole.pdb
+E:\TestApp\Study\StringStudyConsole\StringStudyConsole\obj\Debug\StringStudyConsole.csprojResolveAssemblyReference.cache
