@@ -1,0 +1,13 @@
+E:\TestApp\Study\DelegateExample\DelegateExample\bin\Debug\DelegateExample.exe.config
+E:\TestApp\Study\DelegateExample\DelegateExample\bin\Debug\DelegateExample.exe
+E:\TestApp\Study\DelegateExample\DelegateExample\bin\Debug\DelegateExample.pdb
+E:\TestApp\Study\DelegateExample\DelegateExample\obj\Debug\MainWindow.g.cs
+E:\TestApp\Study\DelegateExample\DelegateExample\obj\Debug\App.g.cs
+E:\TestApp\Study\DelegateExample\DelegateExample\obj\Debug\DelegateExample_MarkupCompile.cache
+E:\TestApp\Study\DelegateExample\DelegateExample\obj\Debug\DelegateExample_MarkupCompile.lref
+E:\TestApp\Study\DelegateExample\DelegateExample\obj\Debug\MainWindow.baml
+E:\TestApp\Study\DelegateExample\DelegateExample\obj\Debug\DelegateExample.g.resources
+E:\TestApp\Study\DelegateExample\DelegateExample\obj\Debug\DelegateExample.Properties.Resources.resources
+E:\TestApp\Study\DelegateExample\DelegateExample\obj\Debug\DelegateExample.csproj.GenerateResource.Cache
+E:\TestApp\Study\DelegateExample\DelegateExample\obj\Debug\DelegateExample.exe
+E:\TestApp\Study\DelegateExample\DelegateExample\obj\Debug\DelegateExample.pdb
