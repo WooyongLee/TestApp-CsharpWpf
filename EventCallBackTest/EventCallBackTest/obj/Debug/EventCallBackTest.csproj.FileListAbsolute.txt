@@ -1,0 +1,16 @@
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\bin\Debug\EventCallBackTest.exe.config
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\bin\Debug\EventCallBackTest.exe
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\bin\Debug\EventCallBackTest.pdb
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\EventCallBackTest.csprojResolveAssemblyReference.cache
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\MainWindow.g.cs
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\SubWindow.g.cs
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\App.g.cs
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\EventCallBackTest_MarkupCompile.cache
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\EventCallBackTest_MarkupCompile.lref
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\MainWindow.baml
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\SubWindow.baml
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\EventCallBackTest.g.resources
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\EventCallBackTest.Properties.Resources.resources
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\EventCallBackTest.csproj.GenerateResource.Cache
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\EventCallBackTest.exe
+E:\TestApp\Study\EventCallBackTest\EventCallBackTest\obj\Debug\EventCallBackTest.pdb
