@@ -1,0 +1,1 @@
+E:\TestApp\Study\NetworkTCPExample\NetworkTCPExample\bin\Debug\NetworkTCPExample.exe.config
