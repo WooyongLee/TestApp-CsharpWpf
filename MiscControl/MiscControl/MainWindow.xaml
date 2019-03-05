@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MiscControl"
         mc:Ignorable="d"
-        Title="MainWindow" Height="260" Width="300">
+        Title="MainWindow" Height="340" Width="300">
     <Window.Resources>
         <ControlTemplate TargetType="Button" x:Key="CircularButtonTemplate">
             <Border Background="Gray" CornerRadius="15" >
@@ -21,6 +21,16 @@
             <Setter Property="Height" Value="30"></Setter>
             <Setter Property="Width" Value="200"></Setter>
             <Setter Property="Template" Value="{StaticResource CircularButtonTemplate}"/>
+        </Style>
+
+        <Style TargetType="{x:Type Button}"  x:Key="DynamicResourceButtonStyle">
+            <Setter Property="Background" Value="{DynamicResource ResourceKey=PinkBrush}">
+            </Setter>
+        </Style>
+        
+        <Style TargetType="{x:Type Button}"  x:Key="StaticResourceButtonStyle">
+            <!--<Setter Property="Background" Value="{StaticResource ResourceKey=GreenBrush}">
+            </Setter>-->
         </Style>
     </Window.Resources>
 
@@ -53,6 +63,8 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
+                <Button Name="DynamicResourceButton" Content="DynamicResourceButton" Style="{DynamicResource DynamicResourceButtonStyle}" Click="DynamicResourceButton_Click"></Button>
+                <Button Name="StaticResourceButton" Content="StaticResourceButton" Style="{StaticResource StaticResourceButtonStyle}" Click="StaticResourceButton_Click"></Button>
             </StackPanel>
         </Border>
     </Grid>

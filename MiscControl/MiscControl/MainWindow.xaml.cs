@@ -47,5 +47,30 @@ namespace MiscControl
             WinFormsHostWindow.Visibility = Visibility.Visible;
         }
 
+        private void DynamicResourceButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Resource 사전에 PinkBrush라는 키를 통해서 다음과 같은 Brush를 추가함 
+            if (!this.Resources.Contains("PinkBrush"))
+            {
+                this.Resources.Add("PinkBrush", new SolidColorBrush(Colors.Pink));
+            }
+            else
+            {
+                this.Resources.Remove("PinkBrush");
+                this.Resources.Remove("CircularButtonStyle");
+            }
+        }
+        private void StaticResourceButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Resource 사전에 GreenBrush 키를 통해서 다음과 같은 Brush를 추가함 
+            if (!this.Resources.Contains("GreenBrush"))
+            {
+                this.Resources.Add("GreenBrush", new SolidColorBrush(Colors.Green));
+            }
+            else
+            {
+                this.Resources.Remove("GreenBrush");
+            }
+        }
     }
 }

@@ -37,8 +37,10 @@ namespace MiscControl
             worker.WorkerReportsProgress = true;
             worker.DoWork += worker_DoWork;
             worker.ProgressChanged += worker_ProgressChanged;
+            // RunWorkerCompleted라는 이벤트도 제공 됨
 
-            worker.RunWorkerAsync();
+            // 백그라운드 작업을 시작함
+            worker.RunWorkerAsync(); 
         }
 
         // Background 작업을 수행하는 함수, 0.1초에 한번 sleep
@@ -48,6 +50,9 @@ namespace MiscControl
             for (int i = 0; i < 100; i++)
             {
                 BackgroundWorker bgw = (BackgroundWorker)sender;
+
+                // System.ComponentModel.BackgroundWorker.ProgressChanged 이벤트를 발생시킵니다.
+                // 매개 변수: percentProgress: 백그라운드 작업의 완료율(0부터 100까지)입니다
                 bgw.ReportProgress(i);
                 Thread.Sleep(100);
             }
@@ -57,6 +62,7 @@ namespace MiscControl
         // 진행 Percentage가 Bar의 상태값에 쭉 따라가도록 하였음 
         void worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
+            // 작업의 진행률을 받아서 ProgressBar에 집어넣음
             this.ProgressBarStatus.Value = e.ProgressPercentage;
         }
     }

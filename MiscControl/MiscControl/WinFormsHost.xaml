@@ -4,9 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MiscControl"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"
         Title="WinFormsHost" Height="300" Width="300">
+        <!--System.Windows.Forms 네임스페이스를 걸어야 함-->
     <Grid>
-        
+        <WindowsFormsHost Name="wfhSample">
+            <WindowsFormsHost.Child>
+                <wf:WebBrowser DocumentTitleChanged="wbWinForms_DocumentTitleChanged" />
+            </WindowsFormsHost.Child>
+        </WindowsFormsHost>
     </Grid>
 </Window>
