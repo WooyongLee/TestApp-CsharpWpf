@@ -1,0 +1,81 @@
+﻿<Window x:Class="MVVMSample.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MVVMSample"
+        xmlns:Converter="clr-namespace:MVVMSample.Converter"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Window.Resources>
+        <Converter:MyDataConverter x:Key="MyDataConverter"></Converter:MyDataConverter>
+        <Converter:BooleanToBackGroundChangeConverter x:Key="BooleanToBackGroundChangeConverter"/>
+    </Window.Resources>
+    
+    <Grid x:Name="MyBindingGrid" >
+        <StackPanel>
+            <!-- 일반적인 TextBlock 부분-->
+            <TextBlock Margin="5" x:Name="NameTextBlock" 
+            Text="{Binding  
+            Path=Name, 
+            Mode=TwoWay,
+            UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+            <StackPanel Margin="5" Orientation="Horizontal" >
+                <TextBlock > 수량입력 :</TextBlock>
+                <TextBox  Margin="5, 0, 0, 0" Width="50" Text="{Binding Count, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                <Button Margin="5, 0, 0, 0" Content="계산" Click="Button_Click"></Button>
+            </StackPanel>
+            <StackPanel Margin="5" Orientation="Horizontal" >
+                <TextBlock > 총 가격 :</TextBlock>
+                <TextBox  Margin="5, 0, 0, 0" Width="100" Text="{Binding TotalPrice, UpdateSourceTrigger=LostFocus}"></TextBox>
+            </StackPanel>
+            
+            <!-- DataGrid 부분-->
+            <StackPanel Margin="5" Orientation="Horizontal" >
+                <TextBlock > 빵 이름 :</TextBlock>
+                <TextBox x:Name="NameTextBox" Margin="5, 0, 0, 0" Width="100"></TextBox>
+                <TextBlock > 가격 :</TextBlock>
+                <TextBox x:Name="PriceTextBox" Margin="5, 0, 0, 0" Width="100"></TextBox>
+                <Button x:Name="추가" Margin="5, 0, 0, 0"  Click="추가_Click">추가</Button>
+                <Button x:Name="삭제" Margin="5, 0, 0, 0" Click="삭제_Click">삭제</Button>
+            </StackPanel>
+            <StackPanel Margin="5">
+                <DataGrid x:Name="MyBindingDataGrid" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="빵 이름" Binding="{Binding Path=Name}" Width="*"> </DataGridTextColumn>
+                        <DataGridTextColumn Header="가격" Binding="{Binding Path=Price}" Width="*" ></DataGridTextColumn>
+                        <DataGridTextColumn Header="시각" Binding="{Binding Path=DTime}" Width="*" ></DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+            
+            <!-- DataConverter 부분-->
+            <StackPanel Margin="5" Orientation="Horizontal">
+                <TextBlock Text="빵 코드 목록 : 0:피자빵, 1:내가더양파, 2:단팥빵, 3:에그타르트"></TextBlock>
+            </StackPanel>
+            <StackPanel Margin="5" Orientation="Horizontal">
+                <TextBlock > 빵 코드:</TextBlock>
+                <TextBox x:Name="CodeTextBox" Margin="5, 0, 0, 0" Width="30"
+                         Text="{Binding Code, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                <TextBlock Margin="10, 0, 0, 0" > 코드에 해당되는 빵 이름 :</TextBlock>
+                <TextBox x:Name="ConvertCodeTextBox" Margin="5, 0, 0, 0" Width="80" 
+                         Text="{Binding Code, Converter={StaticResource ResourceKey=MyDataConverter}}" ></TextBox>
+            </StackPanel>
+            <StackPanel Margin="5" Orientation="Horizontal">
+                <TextBlock Text="상태 조정"></TextBlock>
+                <Button  Margin="10, 0, 0, 0" Content="상태 임의 발생" x:Name="상태임시발생" Click="상태임시발생_Click" ></Button>
+            </StackPanel>
+            <StackPanel Margin="5" Orientation="Horizontal">
+                <TextBlock Margin="10, 0, 0, 0" 
+                           Background="{
+                    Binding StateHungry,
+                    Converter={StaticResource BooleanToBackGroundChangeConverter}}">배고픔</TextBlock>
+                <TextBlock Margin="10, 0, 0, 0" 
+                           Background="{Binding StateTired, Converter={StaticResource BooleanToBackGroundChangeConverter}}">피곤함</TextBlock>
+            </StackPanel>
+            <StackPanel Margin="5" Orientation="Horizontal">
+                <TextBlock ></TextBlock>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
