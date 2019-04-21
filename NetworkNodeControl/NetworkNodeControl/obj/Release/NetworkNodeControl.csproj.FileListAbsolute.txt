@@ -1,1 +1,0 @@
-E:\VS_project\C#Study\NetworkNodeControl\NetworkNodeControl\bin\Release\NetworkNodeControl.exe.config
