@@ -1,0 +1,6 @@
+E:\TestApp\ThreadTestApp\bin\Debug\ThreadTestApp.exe.config
+E:\TestApp\ThreadTestApp\bin\Debug\ThreadTestApp.exe
+E:\TestApp\ThreadTestApp\bin\Debug\ThreadTestApp.pdb
+E:\TestApp\ThreadTestApp\obj\Debug\ThreadTestApp.csprojResolveAssemblyReference.cache
+E:\TestApp\ThreadTestApp\obj\Debug\ThreadTestApp.exe
+E:\TestApp\ThreadTestApp\obj\Debug\ThreadTestApp.pdb
