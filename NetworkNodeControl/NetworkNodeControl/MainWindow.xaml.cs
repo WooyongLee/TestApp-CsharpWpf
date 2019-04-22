@@ -54,7 +54,7 @@ namespace NetworkNodeControl
 
             NodePositionDic = new Dictionary<int, Point>();
 
-            this.SetPointDic();
+            this.SetAllPointDic();
            // this.AddAllNode();
         }
 
@@ -62,6 +62,7 @@ namespace NetworkNodeControl
         public void SetRANodeData(int _GrantTermID, int ConnectedTermID)
         {
             // 키가 없다면 키를 만들고 새로 들어온 노드와 최초 연결
+            // UL_GrantTermID, ConnectTermID 직접 입력 받을 시 해당 조건을 만족함[추후 제거]
             if (!RAFrameUnitDic.ContainsKey(_GrantTermID))
             {
                 // Count가 0일 경우에
@@ -86,44 +87,70 @@ namespace NetworkNodeControl
                 // [(1) 노드 재생성 방지] 및 [(2)기존 노드와의 연결]
             }
 
-            // 키가 있다면 원래 노드와 연결
+            // 상황발생기 발생 시 - 추후 테스트는 상황발생기를 통해서
+            // 상황발생기를 이용하면 이미 Dictionary 안에 데이터들이 차 있는 상태에서 그림을 그리기
             else
             {
-                RAFrameUnitDic[_GrantTermID].Add(ConnectedTermID);
-                AddConnection(_GrantTermID, ConnectedTermID);
+                if (IsRAFirstReceive)
+                {
+                    // 최초에 데이터를 받은 경우에 연결 생성
+                    AddConnection(_GrantTermID, ConnectedTermID, IsRAFirstReceive);
+                    IsRAFirstReceive = false;
+                }
+
+                else
+                {
+                    AddConnection(_GrantTermID, ConnectedTermID);
+                }
+                // RAFrameUnitDic[_GrantTermID].Add(ConnectedTermID);
             }
 
         }
 
-        // 노드 좌표 Dictionary에 좌표들을 채우는 함수
-        public void SetPointDic()
+
+        public void SetPointDic(int nodeLevel, bool Is1stNode = false)
+        {
+            // 첫 노드는 center에 배치
+            if (Is1stNode)
+            {
+                NodePositionDic.Add(1, ConstValue.CenterPos);
+            }
+
+            else
+            {
+
+            }
+        }
+
+        // 노드 좌표 Dictionary에 모든 좌표들을 고정적으로 채우는 함수
+        public void SetAllPointDic()
         {
             int coordX = 200, coordY = 120;
             Point CenterPos = new Point(coordX, coordY);
             int basicLength = 140;
 
             // 센터 노드 배치
-            NodePositionDic.Add(0, CenterPos);
+            NodePositionDic.Add(1, CenterPos);
 
             // 1 ~ 6 노드 배치(센터로 부터 거리는 basicLength 만큼)
-            NodePositionDic.Add(1, new Point(0 - basicLength / 2, coordY + basicLength * Math.Sin(60))); // 노드 1
-            NodePositionDic.Add(2, new Point(coordX + basicLength / 2, coordY + basicLength * Math.Sin(60))); // 노드 2
-            NodePositionDic.Add(3, new Point(coordX + basicLength , coordY)); // 노드 3
-            NodePositionDic.Add(4, new Point(coordX + basicLength / 2, coordY - basicLength * Math.Sin(60))); // 노드 4
-            NodePositionDic.Add(5, new Point(coordX - basicLength / 2, coordY - basicLength * Math.Sin(60))); // 노드 5
-            NodePositionDic.Add(6, new Point(coordX - basicLength , coordY)); // 노드 6
+            NodePositionDic.Add(2, new Point(coordX - basicLength / 2, coordY + basicLength * Math.Sin(60))); // 노드 1
+            NodePositionDic.Add(3, new Point(coordX + basicLength / 2, coordY + basicLength * Math.Sin(60))); // 노드 2
+            NodePositionDic.Add(4, new Point(coordX + basicLength , coordY)); // 노드 3
+            NodePositionDic.Add(5, new Point(coordX + basicLength / 2, coordY - basicLength * Math.Sin(60))); // 노드 4
+            NodePositionDic.Add(6, new Point(coordX - basicLength / 2, coordY - basicLength * Math.Sin(60))); // 노드 5
+            NodePositionDic.Add(7, new Point(coordX - basicLength , coordY)); // 노드 6
 
             // 7 ~ 10 노드 배치(센터로 부터 거리는 basicLength * 2 만큼)
-            NodePositionDic.Add(7, new Point(coordX - 3 * basicLength / 2, coordY + basicLength * Math.Sin(60))); // 노드 7
-            NodePositionDic.Add(8, new Point(coordX + 3 * basicLength / 2, coordY + basicLength * Math.Sin(60))); // 노드 8
-            NodePositionDic.Add(9, new Point(coordX + 3 * basicLength / 2, coordY - basicLength * Math.Sin(60))); // 노드 9
-            NodePositionDic.Add(10, new Point(coordX - 3 * basicLength / 2, coordY - basicLength * Math.Sin(60))); // 노드 10
+            NodePositionDic.Add(8, new Point(coordX - 3 * basicLength / 2, coordY + basicLength * Math.Sin(60))); // 노드 7
+            NodePositionDic.Add(9, new Point(coordX + 3 * basicLength / 2, coordY + basicLength * Math.Sin(60))); // 노드 8
+            NodePositionDic.Add(10, new Point(coordX + 3 * basicLength / 2, coordY - basicLength * Math.Sin(60))); // 노드 9
+            NodePositionDic.Add(11, new Point(coordX - 3 * basicLength / 2, coordY - basicLength * Math.Sin(60))); // 노드 10
 
             // 11 ~ 16 노드 배치 (센터로 부터 거리는 basicLength * 2 만큼, 제 2 노드 고려)
-            NodePositionDic.Add(11, new Point(coordX, coordY - basicLength * 2 * Math.Sin(60))); // 노드 11
-            NodePositionDic.Add(12, new Point(coordX - basicLength, coordY + basicLength * 2 * Math.Sin(60))); // 노드 12
-            NodePositionDic.Add(13, new Point(coordX, coordY + basicLength * 2 * Math.Sin(60))); // 노드 13
-            NodePositionDic.Add(14, new Point(coordX + basicLength,  coordY + basicLength * 2 * Math.Sin(60))); // 노드 14
+            NodePositionDic.Add(12, new Point(coordX, coordY - basicLength * 2 * Math.Sin(60))); // 노드 11
+            NodePositionDic.Add(13, new Point(coordX - basicLength, coordY + basicLength * 2 * Math.Sin(60))); // 노드 12
+            NodePositionDic.Add(14, new Point(coordX, coordY + basicLength * 2 * Math.Sin(60))); // 노드 13
+            NodePositionDic.Add(15, new Point(coordX + basicLength,  coordY + basicLength * 2 * Math.Sin(60))); // 노드 14
 
         }
 
@@ -135,14 +162,17 @@ namespace NetworkNodeControl
                 return;
             }
 
+            int iterIndex = 0;
             // 단일 Level의 노드 데이터롤 그릴 때
-            if (RAFrameUnitDic.Count == 1)
+            // 아마 한번 반복할 것임
+            foreach (KeyValuePair<int, List<int>> pair in RAFrameUnitDic)
             {
-                // 아마 한번 반복할 것임
-                foreach (KeyValuePair<int, List<int>> pair in RAFrameUnitDic)
+                for ( int i = 0; i < pair.Value.Count; i++)
                 {
-
+                    SetRANodeData(pair.Key, pair.Value[i]);
                 }
+
+                iterIndex++;
             }
         }
 
@@ -159,8 +189,8 @@ namespace NetworkNodeControl
             Point nodeCenterPtOfCentralNode = this.GetEllipseCenter(Nodes[ExploreNodeIndex(keyNode)].ellipse);
             Point nodeCenterPtOfSourceNode = this.GetEllipseCenter(Nodes[ExploreNodeIndex(connectedNode)].ellipse);
 
+            // 두 Ellipse 중점 사이에 선 긋기
             CreateLine(nodeCenterPtOfCentralNode, nodeCenterPtOfSourceNode);
-            // To Do :: 선 긋기
 
         }
 
@@ -481,8 +511,8 @@ namespace NetworkNodeControl
             // 노드 이름 설정
             node.ellipse.Name = "Node_" + nodeIndex.ToString();
             
-            double coordX = NodePositionDic[nodeIndex - 1].X;
-            double coordY = NodePositionDic[nodeIndex - 1].Y;
+            double coordX = NodePositionDic[nodeIndex].X;
+            double coordY = NodePositionDic[nodeIndex].Y;
 
             // Canvas에 해당 좌표에 타원 설정 및 추가
             Canvas.SetLeft(node.ellipse, coordX);
@@ -618,19 +648,126 @@ namespace NetworkNodeControl
 
             // UL_Grant TermID에 1번 , Connected TermID에 2, 3, 4, 5, 6번까지 대입
             RAFrameUnitDic.Add(1, ConnectedTermIDList);
+
+            DrawDiagramFromRAData();
         }
 
         private void Situation2Btn_Click(object sender, RoutedEventArgs e)
         {
+            // Size = 2의 RAFrame이 들어올 경우를 가정
+            List<int> ConnectedTermIDList = new List<int>();
+            for (int i = 0; i < 3; i++)
+            {
+                int termID = i + 2;
+                ConnectedTermIDList.Add(termID);
+            }
 
+            // UL_Grant TermID에 1번 , Connected TermID에 2, 3, 4번까지 대입
+            RAFrameUnitDic.Add(1, ConnectedTermIDList);
+
+            List<int> ConnectedTermIDList2 = new List<int>();
+            for (int i = 0; i < 2; i++)
+            {
+                int termID = i + 5;
+                ConnectedTermIDList2.Add(termID);
+            }
+
+            // UL_Grant TermID에 2번 , Connected TermID에 5, 6번까지 대입
+            RAFrameUnitDic.Add(2, ConnectedTermIDList2);
+
+            // 2번 노드가 5, 6에 맞물리게 됨
+
+            DrawDiagramFromRAData();
         }
 
         private void Situation3Btn_Click(object sender, RoutedEventArgs e)
         {
+            // Size = 2의 RAFrame이 들어올 경우를 가정
+            List<int> ConnectedTermIDList = new List<int>();
+            for (int i = 0; i < 3; i++)
+            {
+                int termID = i + 2;
+                ConnectedTermIDList.Add(termID);
+            }
 
+            // UL_Grant TermID에 1번 , Connected TermID에 2, 3, 4번까지 대입
+            RAFrameUnitDic.Add(1, ConnectedTermIDList);
+
+            List<int> ConnectedTermIDList2 = new List<int>();
+            for (int i = 0; i < 2; i++)
+            {
+                int termID = i + 4;
+                ConnectedTermIDList2.Add(termID);
+            }
+
+            // UL_Grant TermID에 2번 , Connected TermID에 4, 5번까지 대입
+            RAFrameUnitDic.Add(2, ConnectedTermIDList2);
+
+            // 2번 노드가 4, 5에 맞물리게 됨, 4는 2와 같은 레벨의 노드임
+
+            DrawDiagramFromRAData();
+        }
+
+        private void Situation4Btn_Click(object sender, RoutedEventArgs e)
+        {
+            // Size = 2의 RAFrame이 들어올 경우를 가정
+            List<int> ConnectedTermIDList = new List<int>();
+            for (int i = 0; i < 3; i++)
+            {
+                int termID = i + 3;
+                ConnectedTermIDList.Add(termID);
+            }
+
+            // UL_Grant TermID에 1번 , Connected TermID에 3, 4, 5번까지 대입
+            RAFrameUnitDic.Add(1, ConnectedTermIDList);
+
+            List<int> ConnectedTermIDList2 = new List<int>();
+            for (int i = 0; i < 2; i++)
+            {
+                int termID = i + 5;
+                ConnectedTermIDList2.Add(termID);
+            }
+
+            // UL_Grant TermID에 2번 , Connected TermID에 6, 7번까지 대입
+            RAFrameUnitDic.Add(2, ConnectedTermIDList2);
+
+            // 1, 2 노드가 서로 독립되어있음
+
+            DrawDiagramFromRAData();
         }
         #endregion
 
+        private void ResetRAData_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (Line line in LineList)
+            {
+                this.canvas.Children.Remove(line);
+            }
+
+            foreach (TextBlock tb in TextBlockList)
+            {
+                this.canvas.Children.Remove(tb);
+            }
+            foreach (Ellipse ellipse in EllipseList)
+            {
+                this.canvas.Children.Remove(ellipse);
+            }
+
+            foreach (NetworkNode node in Nodes)
+            {
+                if (node != null)
+                {
+                    this.canvas.Children.Remove(node.ellipse);
+                }
+            }
+
+            LineList.Clear();
+            TextBlockList.Clear();
+            nodeIndex = 1;
+
+            IsRAFirstReceive = true;
+            RAFrameUnitDic.Clear();
+        }
     }
 
     // 네트워크 노드 정보들을 담은 클래스

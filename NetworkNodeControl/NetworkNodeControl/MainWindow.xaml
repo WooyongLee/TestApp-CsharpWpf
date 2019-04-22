@@ -56,13 +56,14 @@
                 <TextBlock Margin="3">Connected TermID :</TextBlock>
                 <TextBox x:Name="ConnectedTermIDTextBox" Margin="5, 3, 3, 3" Width="20"></TextBox>
                 <Button Margin="3" x:Name="ApplyRAData" Width="40" Click="ApplyRAData_Click">추가</Button>
-                <Button Margin="3" x:Name="ResetRAData" Width="50">초기화</Button>
             </StackPanel>
             <StackPanel Grid.Row="3" Orientation="Horizontal">
                 <TextBlock Margin="5">상황 발생기 : </TextBlock>     
                 <Button x:Name="Situation1Btn" Margin="5" Width="50" Content="상황 1" Click="Situation1Btn_Click"></Button>
                 <Button x:Name="Situation2Btn" Margin="5" Width="50" Content="상황 2" Click="Situation2Btn_Click"></Button>
                 <Button x:Name="Situation3Btn" Margin="5" Width="50" Content="상황 3" Click="Situation3Btn_Click"></Button>
+                <Button x:Name="Situation4Btn" Margin="5" Width="50" Content="상황 4" Click="Situation4Btn_Click"></Button>
+                <Button Margin="3" x:Name="ResetRAData" Width="50" Click="ResetRAData_Click">초기화</Button>
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1" x:Name="CanvasContainerGrid">
