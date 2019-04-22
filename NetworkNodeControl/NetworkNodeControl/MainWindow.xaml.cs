@@ -19,7 +19,7 @@ namespace NetworkNodeControl
         int nodeIndex = 0;
         int numOfLine = 0;
 
-        public NetworkNode[] nodes;
+        public NetworkNode[] Nodes;
 
         // 노드의 위치를 저장하는 Dictionary
         // key : 노드의 인덱스, value : 노드의 위치(x, y)
@@ -38,13 +38,19 @@ namespace NetworkNodeControl
         {
             InitializeComponent();
 
-            nodes = new NetworkNode[ConstValue.MaxNode + 1];
+            Nodes = new NetworkNode[ConstValue.MaxNode + 1];
 
             EllipseList = new List<Ellipse>();
             LineList = new List<Line>();
             TextBlockList = new List<TextBlock>();
 
-            nodes[nodeIndex++] = new NetworkNode(NetworkType.None);
+            Nodes[nodeIndex++] = new NetworkNode(NetworkType.None);
+
+            // 노드 객체 배열에 모든 Item들 생성
+            for (int i = 1; i < Nodes.Length; i++)
+            {
+                Nodes[i] = new NetworkNode();
+            }
 
             NodePositionDic = new Dictionary<int, Point>();
 
@@ -58,22 +64,33 @@ namespace NetworkNodeControl
             // 키가 없다면 키를 만들고 새로 들어온 노드와 최초 연결
             if (!RAFrameUnitDic.ContainsKey(_GrantTermID))
             {
-                List<int> AddedList = new List<int>();
-                AddedList.Add(ConnectedTermID);
-                RAFrameUnitDic.Add(_GrantTermID, AddedList);
+                // Count가 0일 경우에
+                if (RAFrameUnitDic.Count == 0)
+                {
+                    List<int> AddedList = new List<int>();
+                    AddedList.Add(ConnectedTermID);
+                    RAFrameUnitDic.Add(_GrantTermID, AddedList);
 
-                // 최초에 데이터를 받은 경우에 연결 생성
-                AddConnection(_GrantTermID, ConnectedTermID, IsRAFirstReceive);
+                    // 최초에 데이터를 받은 경우에 연결 생성
+                    AddConnection(_GrantTermID, ConnectedTermID, IsRAFirstReceive);
+                    IsRAFirstReceive = false;
+                }
+                
+                // Count가 1보다 큰 경우일 때 ( Level 2 노드 이상 )
+                else
+                {
+
+                }
 
                 // To Do :: 이미 이전의 키와 연결된 노드가 있는 경우에
                 // [(1) 노드 재생성 방지] 및 [(2)기존 노드와의 연결]
-
             }
 
             // 키가 있다면 원래 노드와 연결
             else
             {
                 RAFrameUnitDic[_GrantTermID].Add(ConnectedTermID);
+                AddConnection(_GrantTermID, ConnectedTermID);
             }
 
         }
@@ -89,7 +106,7 @@ namespace NetworkNodeControl
             NodePositionDic.Add(0, CenterPos);
 
             // 1 ~ 6 노드 배치(센터로 부터 거리는 basicLength 만큼)
-            NodePositionDic.Add(1, new Point(coordX - basicLength / 2, coordY + basicLength * Math.Sin(60))); // 노드 1
+            NodePositionDic.Add(1, new Point(0 - basicLength / 2, coordY + basicLength * Math.Sin(60))); // 노드 1
             NodePositionDic.Add(2, new Point(coordX + basicLength / 2, coordY + basicLength * Math.Sin(60))); // 노드 2
             NodePositionDic.Add(3, new Point(coordX + basicLength , coordY)); // 노드 3
             NodePositionDic.Add(4, new Point(coordX + basicLength / 2, coordY - basicLength * Math.Sin(60))); // 노드 4
@@ -130,16 +147,39 @@ namespace NetworkNodeControl
         }
 
         // 들어온 RA 데이터를 통해서 연결 구축하기
-        public void AddConnection(int keyNode, int ConnectedNode, bool IsFirstRcv)
+        public void AddConnection(int keyNode, int connectedNode, bool IsFirstRcv = false)
         {
             // 최초 데이터 수신 시시작 노드 그려주기
-            if ( IsFirstRcv)
+            if ( IsFirstRcv )
             {
                 AddNode(keyNode);
             }
-            AddNode(ConnectedNode);
+            AddNode(connectedNode);
 
+            Point nodeCenterPtOfCentralNode = this.GetEllipseCenter(Nodes[ExploreNodeIndex(keyNode)].ellipse);
+            Point nodeCenterPtOfSourceNode = this.GetEllipseCenter(Nodes[ExploreNodeIndex(connectedNode)].ellipse);
+
+            CreateLine(nodeCenterPtOfCentralNode, nodeCenterPtOfSourceNode);
             // To Do :: 선 긋기
+
+        }
+
+        public void MoveCanvas()
+        {
+            
+        }
+
+        // TermID 를 통해서 Network Node 배열의 인덱스를 반환함
+        public int ExploreNodeIndex(int nodeTermID)
+        {
+            for (int i = 0; i < Nodes.Length; i++)
+            {
+                if (Nodes[i].NodeTermID == nodeTermID)
+                {
+                    return i;
+                }
+            }
+            return 0;
         }
 
         // 노드 좌표 Dictionary에 좌표들을 채우는 함수 ver 2
@@ -174,7 +214,7 @@ namespace NetworkNodeControl
 
         }
 
-        public Point getEllipseCenter(Ellipse ellipse)
+        public Point GetEllipseCenter(Ellipse ellipse)
         {
             Point pt = new Point();
             double top = Canvas.GetTop(ellipse);
@@ -322,8 +362,8 @@ namespace NetworkNodeControl
                 Ellipse fromNode = EllipseList.Find(x => x.Name.Contains(fromNodeName));
                 Ellipse toNode = EllipseList.Find(x => x.Name.Contains(toNodeName));
 
-                Point p1 = getEllipseCenter(fromNode);
-                Point p2 = getEllipseCenter(toNode);
+                Point p1 = GetEllipseCenter(fromNode);
+                Point p2 = GetEllipseCenter(toNode);
 
                 CreateLine(p1, p2);
             }
@@ -345,8 +385,8 @@ namespace NetworkNodeControl
                 Ellipse fromNode = EllipseList.Find(x => x.Name.Contains(fromNodeName));
                 Ellipse toNode = EllipseList.Find(x => x.Name.Contains(toNodeName));
 
-                Point p1 = getEllipseCenter(fromNode);
-                Point p2 = getEllipseCenter(toNode);
+                Point p1 = GetEllipseCenter(fromNode);
+                Point p2 = GetEllipseCenter(toNode);
 
                 DeleteLine(p1, p2);
             }
@@ -368,7 +408,7 @@ namespace NetworkNodeControl
                 this.canvas.Children.Remove(ellipse);
             }
 
-            foreach (NetworkNode node in nodes)
+            foreach (NetworkNode node in Nodes)
             {
                 if (node != null)
                 {
@@ -387,82 +427,85 @@ namespace NetworkNodeControl
         {
             for ( int i = 0; i < 15; i++)
             {
-                AddNode();
+                AddNode(i);
             }
         }
 
+        ////노드를 추가함
+        //public void AddNode(int termID)
+        //{
+        //    // 최초의 노드 생성 및 노드번호 할당
+        //    Nodes[nodeIndex] = new NetworkNode(NetworkType.Ground);
+        //    Nodes[nodeIndex].NodeTermID = termID;
+
+        //    // 노드 이름 설정
+        //    Nodes[nodeIndex].ellipse.Name = "Node_" + nodeIndex.ToString();
+
+        //    // 최초 위치 설정
+        //    double coordX = NodePositionDic[nodeIndex - 1].X;
+        //    double coordY = NodePositionDic[nodeIndex - 1].Y;
+
+        //    // Canvas에 해당 좌표에 타원 설정 및 추가
+        //    Canvas.SetLeft(Nodes[nodeIndex].ellipse, coordX);
+        //    Canvas.SetTop(Nodes[nodeIndex].ellipse, coordY);
+        //    canvas.Children.Add(Nodes[nodeIndex].ellipse);
+        //    EllipseList.Add(Nodes[nodeIndex].ellipse);
+
+        //    // 타원 내에 텍스트박스 설정
+        //    TextBlock textBlock = new TextBlock();
+
+        //    textBlock.Text = nodeIndex.ToString() + "번";
+        //    Canvas.SetLeft(textBlock, coordX + 10);
+        //    Canvas.SetTop(textBlock, coordY + 10);
+        //    TextBlockList.Add(textBlock);
+
+        //    canvas.Children.Add(textBlock);
+        //    nodeIndex++;
+        //}
 
         /// <summary>
-        /// 노드를 추가함
+        /// 노드를 Canvas에 추가함
         /// </summary>
-        /// <param name="termID">기존 노드(키값)</param>
-        /// <param name="ConnectedNode">연결당할 노드</param>
-        public void AddNode(int termID)
+        /// <param name="termID">Node의 Term ID</param>
+        /// <returns>Network Node 데이터</returns>
+        public NetworkNode AddNode(int termID)
         {
-            // 최초의 노드 생성 및 노드번호 할당
-            nodes[nodeIndex] = new NetworkNode(NetworkType.Ground);
-            nodes[nodeIndex].nodeNumber = termID;
+            if (nodeIndex > ConstValue.MaxNode || nodeIndex == 0) return new NetworkNode();
 
-            // 노드 이름 설정
-            nodes[nodeIndex].ellipse.Name = "Node_" + nodeIndex.ToString();
-
-            // 최초 위치 설정
-            double coordX = NodePositionDic[nodeIndex - 1].X;
-            double coordY = NodePositionDic[nodeIndex - 1].Y;
-
-            // Canvas에 해당 좌표에 타원 설정 및 추가
-            Canvas.SetLeft(nodes[nodeIndex].ellipse, coordX);
-            Canvas.SetTop(nodes[nodeIndex].ellipse, coordY);
-            canvas.Children.Add(nodes[nodeIndex].ellipse);
-            EllipseList.Add(nodes[nodeIndex].ellipse);
-
-            // 타원 내에 텍스트박스 설정
-            TextBlock textBlock = new TextBlock();
-
-            textBlock.Text = nodeIndex.ToString() + "번";
-            Canvas.SetLeft(textBlock, coordX + 10);
-            Canvas.SetTop(textBlock, coordY + 10);
-            TextBlockList.Add(textBlock);
-
-            canvas.Children.Add(textBlock);
-            nodeIndex++;
-        }
-
-        public void AddNode()
-        {
-            if (nodeIndex > ConstValue.MaxNode || nodeIndex == 0) return;
+            NetworkNode node = Nodes[nodeIndex];
 
             // 노드에 타원 생성 및 노드번호 할당
-            nodes[nodeIndex].ellipse = new Ellipse { Width = ConstValue.EllipseWidth, Height = ConstValue.EllipseHeight };
-            nodes[nodeIndex].nodeNumber = nodeIndex;
+            node.ellipse = new Ellipse { Width = ConstValue.EllipseWidth, Height = ConstValue.EllipseHeight };
+            node.NodeTermID = termID;
 
             // 노드 이름 설정
-            nodes[nodeIndex].ellipse.Name = "Node_" + nodeIndex.ToString();
+            node.ellipse.Name = "Node_" + nodeIndex.ToString();
             
             double coordX = NodePositionDic[nodeIndex - 1].X;
             double coordY = NodePositionDic[nodeIndex - 1].Y;
 
             // Canvas에 해당 좌표에 타원 설정 및 추가
-            Canvas.SetLeft(nodes[nodeIndex].ellipse, coordX);
-            Canvas.SetTop(nodes[nodeIndex].ellipse, coordY);
-            canvas.Children.Add(nodes[nodeIndex].ellipse);
-            EllipseList.Add(nodes[nodeIndex].ellipse);
+            Canvas.SetLeft(node.ellipse, coordX);
+            Canvas.SetTop(node.ellipse, coordY);
+            canvas.Children.Add(node.ellipse);
+            EllipseList.Add(node.ellipse);
 
             // 타원 내에 텍스트박스 설정
-            TextBlock textBlock = new TextBlock();
+            node.textBlock.Text = termID.ToString() + "번";
+            TextBlock textBlock = node.textBlock;
 
-            textBlock.Text = nodeIndex.ToString() + "번";
             Canvas.SetLeft(textBlock, coordX + 10);
             Canvas.SetTop(textBlock, coordY + 10);
+            canvas.Children.Add(textBlock);
             TextBlockList.Add(textBlock);
 
             nodeIndex++;
-            canvas.Children.Add(textBlock);
+            return node;
         }
 
         private void AddNodeButton_Click(object sender, RoutedEventArgs e)
         {
-            AddNode();
+            // AddNode();
         }
 
         public void EllipseColorConverter(Ellipse _ellipse, SolidColorBrush _brush, int index)
@@ -494,64 +537,133 @@ namespace NetworkNodeControl
             }
             
             SolidColorBrush brush;
-            if (nodes[targetNodeNum].networkConnectionState)
+            if (Nodes[targetNodeNum].networkConnectionState)
             {
-                nodes[targetNodeNum].networkConnectionState = false;
+                Nodes[targetNodeNum].networkConnectionState = false;
                 brush = new SolidColorBrush(Colors.Red);
             }
             else
             {
-                nodes[targetNodeNum].networkConnectionState = true;
+                Nodes[targetNodeNum].networkConnectionState = true;
                 brush = new SolidColorBrush(Colors.Green);
             }
 
-            EllipseColorConverter(nodes[targetNodeNum].ellipse, brush, targetNodeNum-1);
+            EllipseColorConverter(Nodes[targetNodeNum].ellipse, brush, targetNodeNum-1);
         }
 
-        private void canvas_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            Point p = Mouse.GetPosition(canvas);
-            p.X += canvas.Margin.Left;
-            p.Y += canvas.Margin.Right;
-
-            Ellipse ellipse = new Ellipse();
-
-            Canvas.SetLeft(ellipse, p.X);
-            Canvas.SetTop(ellipse, p.Y);
-            canvas.Children.Add(ellipse);
-        }
-        //Ellipse CreateEllipse(double desiredCenterX, double desiredCenterY)
+        //private void canvas_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         //{
-        //    Ellipse ellipse = new Ellipse { Width = EllipseWidth, Height = EllipseHeight };
-        //    double left = desiredCenterX - (EllipseWidth / 2);
-        //    double top = desiredCenterY - (EllipseHeight / 2);
+        //    Point p = Mouse.GetPosition(canvas);
+        //    p.X += canvas.Margin.Left;
+        //    p.Y += canvas.Margin.Right;
 
-        //    ellipse.Margin = new Thickness(left, top, 0, 0);
-        //    return ellipse;
+        //    Ellipse ellipse = new Ellipse();
+
+        //    Canvas.SetLeft(ellipse, p.X);
+        //    Canvas.SetTop(ellipse, p.Y);
+        //    canvas.Children.Add(ellipse);
         //}
 
+        private void ApplyRAData_Click(object sender, RoutedEventArgs e)
+        {
+            int UL_GrantTermID = int.Parse(GrantTermIDTextBox.Text.ToString());
+            int Connected_TermID = int.Parse(ConnectedTermIDTextBox.Text.ToString());
 
-        // 네트워크 노드 정보들
+            this.SetRANodeData(UL_GrantTermID, Connected_TermID);
+        }
+
+
+        #region Canvas 내부 마우스 컨트롤 - 사용자가 노드를 옮길 수 있게 함
+        bool activated;
+        Point point;
+
+        private void Canvas_MouseLeave(object sender, MouseEventArgs e)
+        {
+            activated = false;
+        }
+
+        private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            activated = true;
+            point = e.GetPosition(CanvasContainerGrid);
+        }
+
+        private void Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (activated)
+            {
+                // 변환 좌표로 개체를 이동
+                translate.X = e.GetPosition(CanvasContainerGrid).X - point.X;
+                translate.Y = e.GetPosition(CanvasContainerGrid).Y - point.Y;
+            }
+        }
+
+        private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            activated = false;
+        }
+        #endregion
+
+        #region 상황 발생기
+        // 상황을 가정하기
+        private void Situation1Btn_Click(object sender, RoutedEventArgs e)
+        {
+            // 단일 Size의 RAFrame이 들어올 경우 가정
+            List<int> ConnectedTermIDList = new List<int>();
+            for ( int i = 0 ; i < 5 ; i++)
+            {
+                int termID = i + 2;
+                ConnectedTermIDList.Add(termID);
+            }
+
+            // UL_Grant TermID에 1번 , Connected TermID에 2, 3, 4, 5, 6번까지 대입
+            RAFrameUnitDic.Add(1, ConnectedTermIDList);
+        }
+
+        private void Situation2Btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Situation3Btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        #endregion
+
     }
-    
+
+    // 네트워크 노드 정보들을 담은 클래스
     public class NetworkNode
     {
         // 네트워크 연결 상태,  연결 = true
         public bool networkConnectionState = true;
-        public NetworkType networkType { get; set; }
-        public int nodeNumber;
 
+        // 네트워크 타입
+        public NetworkType networkType { get; set; }
+
+        // 노드의 TermID
+        public int NodeTermID { get; set; }
+
+        // 타원
         public Ellipse ellipse;
+
+        // 타원에 찍힐 번호를 보여주는 TextBlock
+        public TextBlock textBlock;
+
+        // 연결된 노드의 번호 리스트
         public List<int> ConnectedNode;
 
         public NetworkNode()
         {
-
+            this.ellipse = new Ellipse { Width = ConstValue.EllipseWidth, Height = ConstValue.EllipseHeight };
+            this.textBlock = new TextBlock();
         }
         public NetworkNode(NetworkType type)
         {
             networkType = type;
             this.ellipse = new Ellipse { Width = ConstValue.EllipseWidth, Height = ConstValue.EllipseHeight };
+            this.textBlock = new TextBlock();
             ConnectedNode = new List<int>();
         }
     }

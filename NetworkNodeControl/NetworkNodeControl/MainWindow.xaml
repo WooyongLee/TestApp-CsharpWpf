@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetworkNodeControl"
         mc:Ignorable="d"
-        Title="MainWindow" Height="400" Width="480">
+        Title="MainWindow" Height="450" Width="480">
     <Window.Resources>
         <Style TargetType="{x:Type Ellipse}">
             <Setter Property="Width" Value="40"></Setter>
@@ -23,11 +23,12 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>
+            <RowDefinition Height="120"/>
             <RowDefinition Height="300"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.RowDefinitions>
+                <RowDefinition Height="1*"></RowDefinition>
                 <RowDefinition Height="1*"></RowDefinition>
                 <RowDefinition Height="1*"></RowDefinition>
                 <RowDefinition Height="1*"></RowDefinition>
@@ -54,17 +55,31 @@
                 <TextBox x:Name="GrantTermIDTextBox" Margin="5, 3, 3, 3" Width="20"></TextBox>
                 <TextBlock Margin="3">Connected TermID :</TextBlock>
                 <TextBox x:Name="ConnectedTermIDTextBox" Margin="5, 3, 3, 3" Width="20"></TextBox>
-                <Button Margin="3" x:Name="ApplyRAData" Width="40">추가</Button>
+                <Button Margin="3" x:Name="ApplyRAData" Width="40" Click="ApplyRAData_Click">추가</Button>
                 <Button Margin="3" x:Name="ResetRAData" Width="50">초기화</Button>
             </StackPanel>
+            <StackPanel Grid.Row="3" Orientation="Horizontal">
+                <TextBlock Margin="5">상황 발생기 : </TextBlock>     
+                <Button x:Name="Situation1Btn" Margin="5" Width="50" Content="상황 1" Click="Situation1Btn_Click"></Button>
+                <Button x:Name="Situation2Btn" Margin="5" Width="50" Content="상황 2" Click="Situation2Btn_Click"></Button>
+                <Button x:Name="Situation3Btn" Margin="5" Width="50" Content="상황 3" Click="Situation3Btn_Click"></Button>
+            </StackPanel>
         </Grid>
-        <Grid Grid.Row="1" >
-            <Border>
-                <Canvas x:Name="canvas" HorizontalAlignment="Left" Height="280" Margin="5" VerticalAlignment="Top" Width="440"
-                        MouseLeftButtonDown="canvas_MouseLeftButtonDown">
-
-                </Canvas>
-            </Border>
+        <Grid Grid.Row="1" x:Name="CanvasContainerGrid">
+            <Canvas x:Name="canvas" 
+                        MouseLeave=" Canvas_MouseLeave"
+                        MouseMove="Canvas_MouseMove"
+                        MouseUp="Canvas_MouseUp"
+                        MouseDown="Canvas_MouseDown"
+                        HorizontalAlignment="Left" Height="280" Margin="5" VerticalAlignment="Top" Width="440"
+                       >
+                <Canvas.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="st" />
+                        <TranslateTransform x:Name="translate" />
+                    </TransformGroup>
+                </Canvas.RenderTransform>
+            </Canvas>
         </Grid>
     </Grid>
 </Window>
