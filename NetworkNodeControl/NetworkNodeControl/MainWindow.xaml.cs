@@ -25,14 +25,15 @@ namespace NetworkNodeControl
         // key : 노드의 인덱스, value : 노드의 위치(x, y)
         public Dictionary<int, Point> NodePositionDic;
 
+        // 중앙 노드 받았을 떄를 확인하는 플래그
+        public bool IsRcvCenterNode = false;
+
         List<Ellipse> EllipseList;
         List<Line> LineList;
         List<TextBlock> TextBlockList;
 
         // RA 데이터가 들어오는 상황을 추가
         private Dictionary<int, List<int>> RAFrameUnitDic = new Dictionary<int, List<int>>();
-
-        private bool IsRAFirstReceive = true;
 
         public MainWindow()
         {
@@ -59,7 +60,7 @@ namespace NetworkNodeControl
         }
 
         // RA 데이터가 들어올 시 노드 그리기를 제어
-        public void SetRANodeData(int _GrantTermID, int ConnectedTermID)
+        public void SetRANodeData(int _GrantTermID, int ConnectedTermID, bool IsNewKey)
         {
             // 키가 없다면 키를 만들고 새로 들어온 노드와 최초 연결
             // UL_GrantTermID, ConnectTermID 직접 입력 받을 시 해당 조건을 만족함[추후 제거]
@@ -73,8 +74,7 @@ namespace NetworkNodeControl
                     RAFrameUnitDic.Add(_GrantTermID, AddedList);
 
                     // 최초에 데이터를 받은 경우에 연결 생성
-                    AddConnection(_GrantTermID, ConnectedTermID, IsRAFirstReceive);
-                    IsRAFirstReceive = false;
+                    AddConnection(_GrantTermID, ConnectedTermID, true);
                 }
                 
                 // Count가 1보다 큰 경우일 때 ( Level 2 노드 이상 )
@@ -91,11 +91,10 @@ namespace NetworkNodeControl
             // 상황발생기를 이용하면 이미 Dictionary 안에 데이터들이 차 있는 상태에서 그림을 그리기
             else
             {
-                if (IsRAFirstReceive)
+                if (IsNewKey)
                 {
                     // 최초에 데이터를 받은 경우에 연결 생성
-                    AddConnection(_GrantTermID, ConnectedTermID, IsRAFirstReceive);
-                    IsRAFirstReceive = false;
+                    AddConnection(_GrantTermID, ConnectedTermID, IsNewKey);
                 }
 
                 else
@@ -108,12 +107,12 @@ namespace NetworkNodeControl
         }
 
 
-        public void SetPointDic(int nodeLevel, bool Is1stNode = false)
+        public void SetNodePoisitionDic(int nodeLevel, int termID, bool Is1stNode = false)
         {
             // 첫 노드는 center에 배치
             if (Is1stNode)
             {
-                NodePositionDic.Add(1, ConstValue.CenterPos);
+                NodePositionDic.Add(termID, ConstValue.CenterPos);
             }
 
             else
@@ -167,31 +166,67 @@ namespace NetworkNodeControl
             // 아마 한번 반복할 것임
             foreach (KeyValuePair<int, List<int>> pair in RAFrameUnitDic)
             {
+                bool IsNewKey = true;
                 for ( int i = 0; i < pair.Value.Count; i++)
                 {
-                    SetRANodeData(pair.Key, pair.Value[i]);
+                    SetRANodeData(pair.Key, pair.Value[i], IsNewKey); 
+                    IsNewKey = false;
                 }
 
                 iterIndex++;
             }
         }
 
-        // 들어온 RA 데이터를 통해서 연결 구축하기
-        public void AddConnection(int keyNode, int connectedNode, bool IsFirstRcv = false)
+        /// <summary>
+        /// 들어온 RA 데이터를 통해서 연결 구축하기
+        /// </summary>
+        /// <param name="keyNodeTermID">키 노드</param>
+        /// <param name="connectedNodeTermID">연결될 노드</param>
+        /// <param name="IsFirstRcv">키가 첫번째로 들어왔는 지[To Do : 파라미터 명 변경]</param>
+        public void AddConnection(int keyNodeTermID, int connectedNodeTermID, bool IsFirstRcv = false)
         {
+            // 이미 TermId를 갖고 있는 경우에 처리하기
+
             // 최초 데이터 수신 시시작 노드 그려주기
             if ( IsFirstRcv )
             {
-                AddNode(keyNode);
+                // 이미 추가된 노드가 아닌 경우에
+                if (!IsAlreadyNodeArray(keyNodeTermID))
+                {
+                    // Notice : 노드를 추가하기 전 먼저 Position을 선정함
+                    SetNodePoisitionDic(1, keyNodeTermID, IsRcvCenterNode);
+                    AddNode(keyNodeTermID);
+                    IsRcvCenterNode = true;
+                }
             }
-            AddNode(connectedNode);
 
-            Point nodeCenterPtOfCentralNode = this.GetEllipseCenter(Nodes[ExploreNodeIndex(keyNode)].ellipse);
-            Point nodeCenterPtOfSourceNode = this.GetEllipseCenter(Nodes[ExploreNodeIndex(connectedNode)].ellipse);
+            // 이미 추가된 노드가 아닌 경우에
+            if (!IsAlreadyNodeArray(connectedNodeTermID))
+            {
+                // 노드 그려주기
+                // Notice : 노드를 추가하기 전 먼저 Position을 선정함
+                SetNodePoisitionDic(1, connectedNodeTermID, IsRcvCenterNode);
+                AddNode(connectedNodeTermID);
+            }
+
+            Point nodeCenterPtOfCentralNode = this.GetEllipseCenter(Nodes[ExploreNodeIndex(keyNodeTermID)].ellipse);
+            Point nodeCenterPtOfSourceNode = this.GetEllipseCenter(Nodes[ExploreNodeIndex(connectedNodeTermID)].ellipse);
 
             // 두 Ellipse 중점 사이에 선 긋기
             CreateLine(nodeCenterPtOfCentralNode, nodeCenterPtOfSourceNode);
+        }
 
+        // 들어온 TermID에 의해 이미 그려진 노드가 있는 지 확인하기
+        public bool IsAlreadyNodeArray(int nodeTermID)
+        {
+            foreach (NetworkNode node in Nodes)
+            {
+                if (node.NodeTermID == nodeTermID)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void MoveCanvas()
@@ -345,7 +380,7 @@ namespace NetworkNodeControl
                     p2.Y = p2.Y - ConstValue.EllipseRadius;
                 }
 
-                else if (p1.Y < p2.Y)
+                else if (p1.Y > p2.Y)
                 {
                     p1.Y = p1.Y - ConstValue.EllipseRadius;
                     p2.Y = p2.Y + ConstValue.EllipseRadius;
@@ -360,7 +395,7 @@ namespace NetworkNodeControl
                     p2.X = p2.X - ConstValue.EllipseRadius;
                 }
 
-                else if (p1.X < p2.X)
+                else if (p1.X > p2.X)
                 {
                     p1.X = p1.X - ConstValue.EllipseRadius;
                     p2.X = p2.X + ConstValue.EllipseRadius;
@@ -444,6 +479,11 @@ namespace NetworkNodeControl
                 {
                     this.canvas.Children.Remove(node.ellipse);
                 }
+            }
+
+            for (int i = 0; i < Nodes.Length; i++)
+            {
+                Nodes[i] = null;
             }
 
             LineList.Clear();
@@ -596,10 +636,10 @@ namespace NetworkNodeControl
 
         private void ApplyRAData_Click(object sender, RoutedEventArgs e)
         {
-            int UL_GrantTermID = int.Parse(GrantTermIDTextBox.Text.ToString());
-            int Connected_TermID = int.Parse(ConnectedTermIDTextBox.Text.ToString());
+            //int UL_GrantTermID = int.Parse(GrantTermIDTextBox.Text.ToString());
+            //int Connected_TermID = int.Parse(ConnectedTermIDTextBox.Text.ToString());
 
-            this.SetRANodeData(UL_GrantTermID, Connected_TermID);
+            //this.SetRANodeData(UL_GrantTermID, Connected_TermID );
         }
 
 
@@ -737,8 +777,10 @@ namespace NetworkNodeControl
         }
         #endregion
 
+        // 모든 RA 데이터들 리셋하기
         private void ResetRAData_Click(object sender, RoutedEventArgs e)
         {
+            // Canvas에 그려진 개체들 모두 지우기
             foreach (Line line in LineList)
             {
                 this.canvas.Children.Remove(line);
@@ -758,15 +800,30 @@ namespace NetworkNodeControl
                 if (node != null)
                 {
                     this.canvas.Children.Remove(node.ellipse);
+                    this.canvas.Children.Remove(node.textBlock);
                 }
             }
 
+            // 모든 노드 TermID 초기화
+            for (int i = 0; i < Nodes.Length; i++)
+            {
+                Nodes[i].NodeTermID = 0;
+            }
+
+            // 모든 List Clear
             LineList.Clear();
+            EllipseList.Clear();
             TextBlockList.Clear();
+            
+            // 인덱스 제자리로
             nodeIndex = 1;
 
-            IsRAFirstReceive = true;
+            // 상태변수 초기화
+            IsRcvCenterNode = false;
+
+            // RA Frame Dictionary / Node Position Dictionary 초기화
             RAFrameUnitDic.Clear();
+            NodePositionDic.Clear();
         }
     }
 

@@ -23,4 +23,15 @@ namespace NetworkNodeControl
 
         public readonly static int LineLength = 140;
     }
+
+    public enum ENodeDirection
+    {
+        Center = 0,
+        RightTop = 1,
+        Right = 2,
+        RightBottom = 3,
+        LeftBottom = 4,
+        Left = 5,
+        LeftTop = 6
+    }
 }
