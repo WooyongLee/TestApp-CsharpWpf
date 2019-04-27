@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XMilmap Version="1.2">
+  <Scales>
+    <Scale Type="PBI" Name="MODIS WORLD" Level="2">
+      <DataSource>Temp1-3</DataSource>
+    </Scale>
+    <Scale Type="RPF" Name="CIB 1 meter">
+      <DataSource>Temp2-2</DataSource>
+      <DataSource>Temp2-3</DataSource>
+    </Scale>
+  </Scales>
+</XMilmap>

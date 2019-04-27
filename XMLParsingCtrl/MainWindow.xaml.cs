@@ -12,7 +12,7 @@ namespace XMLParsingCtrl
     public partial class MainWindow : Window
     {
         // 읽어서 처리할 XML 파일 경로
-        private readonly static string XmlFilePath = @"C:\Users\wooyo\Desktop\Parsing\2D\XMilmapConfig.xml";
+        private readonly static string XmlFilePath = @"E:\TestApp\TestXMLFiles\Test.xml";
 
         // 읽을 노드의 레벨
         private readonly static string SelectNodeLevel = "XMilmap/Scales/Scale";
@@ -128,7 +128,10 @@ namespace XMLParsingCtrl
             }
         }
 
-        // 선택한 XML 노드 삭제하기
+        /// <summary>
+        /// 선택한 XML 노드 삭제하기
+        /// </summary>
+        /// <param name="selectedNode">ListView 에서 선택한 노드</param>
         private void DeleteXmlNode(string selectedNode)
         {
             XmlNodeList xmlNodeList = XmlDoc.SelectNodes(SelectNodeLevel);
@@ -137,8 +140,12 @@ namespace XMLParsingCtrl
             {
                 foreach (XmlElement node in xmlNode)
                 {
-                    // XML 노드에서 해당 node를 삭제함
-                    xmlNode.RemoveChild(node);
+                    // 선택한 이름(parameter)의 데이터만 삭제함
+                    if (selectedNode.Equals(node.InnerText))
+                    {
+                        // XML 노드에서 해당 node를 삭제함
+                        xmlNode.RemoveChild(node);
+                    }
                 }
             }
 

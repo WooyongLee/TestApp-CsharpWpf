@@ -1,0 +1,6 @@
+E:\TestApp\UsingTask\bin\Debug\UsingTask.exe.config
+E:\TestApp\UsingTask\bin\Debug\UsingTask.exe
+E:\TestApp\UsingTask\bin\Debug\UsingTask.pdb
+E:\TestApp\UsingTask\obj\Debug\UsingTask.csprojResolveAssemblyReference.cache
+E:\TestApp\UsingTask\obj\Debug\UsingTask.exe
+E:\TestApp\UsingTask\obj\Debug\UsingTask.pdb
