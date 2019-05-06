@@ -25,8 +25,6 @@ namespace NetworkNodeControl
         // key : 노드의 인덱스, value : 노드의 위치(x, y)
         public Dictionary<int, Point> NodePositionDic;
 
-        // 중앙 노드 받았을 떄를 확인하는 플래그
-        public bool IsRcvCenterNode = false;
 
         List<Ellipse> EllipseList;
         List<Line> LineList;
@@ -55,7 +53,7 @@ namespace NetworkNodeControl
 
             NodePositionDic = new Dictionary<int, Point>();
 
-            this.SetAllPointDic();
+           // this.SetAllPointDic();
            // this.AddAllNode();
         }
 
@@ -106,7 +104,7 @@ namespace NetworkNodeControl
 
         }
 
-
+        // canvas 내에 노드들의 위치를 설정
         public void SetNodePoisitionDic(int nodeLevel, int termID, bool Is1stNode = false)
         {
             // 첫 노드는 center에 배치
@@ -117,7 +115,8 @@ namespace NetworkNodeControl
 
             else
             {
-
+                // 같은 레벨에서는 여섯방향 공간을 돌면서 노드를 배치하기
+                NodePositionDic.Add(termID, ConstValue.SetLeftTopPos(nodeLevel, ENodeDirection.RightTop));
             }
         }
 
@@ -194,9 +193,9 @@ namespace NetworkNodeControl
                 if (!IsAlreadyNodeArray(keyNodeTermID))
                 {
                     // Notice : 노드를 추가하기 전 먼저 Position을 선정함
-                    SetNodePoisitionDic(1, keyNodeTermID, IsRcvCenterNode);
+                    // 가장 중앙 노드를 받는 경우
+                    SetNodePoisitionDic(1, keyNodeTermID, true);
                     AddNode(keyNodeTermID);
-                    IsRcvCenterNode = true;
                 }
             }
 
@@ -205,7 +204,7 @@ namespace NetworkNodeControl
             {
                 // 노드 그려주기
                 // Notice : 노드를 추가하기 전 먼저 Position을 선정함
-                SetNodePoisitionDic(1, connectedNodeTermID, IsRcvCenterNode);
+                SetNodePoisitionDic(1, connectedNodeTermID);
                 AddNode(connectedNodeTermID);
             }
 
@@ -819,7 +818,6 @@ namespace NetworkNodeControl
             nodeIndex = 1;
 
             // 상태변수 초기화
-            IsRcvCenterNode = false;
 
             // RA Frame Dictionary / Node Position Dictionary 초기화
             RAFrameUnitDic.Clear();
