@@ -23,6 +23,7 @@ namespace NetworkNodeControl
 
         public readonly static int LineLength = 140;
 
+        public readonly static double Degree180 = (Math.PI);
         public readonly static double Degree120 = (Math.PI / 3 * 2);
         public readonly static double Degree90 = (Math.PI / 2);
         public readonly static double Degree60 = (Math.PI / 3);
@@ -38,30 +39,37 @@ namespace NetworkNodeControl
             double rDouble = rDegree.NextDouble();
 
             // 60 - 120도 사이의 임의의 수 구하기
-            double rDegree120Num = Degree120 * rDouble - Degree60 - rDouble;
+            double rDegree120Num = rDegree.NextDouble() * (Degree120 + Degree60);
 
             // 0 - 60도 사이의 임의의 수 구하기
             double rDegree60Num = rDegree.NextDouble() * Degree60;
 
+            if (rDegree120Num < 0.15)
+            {
+                rDouble += 0.15;
+            }
+
             switch (eNodeDirection)
             {
+            
+
                 case ENodeDirection.LeftTop:
                     return new Point(CenterPos.X - LineLength * Math.Cos(rDegree60Num), CenterPos.Y - LineLength * Math.Sin(rDegree60Num));
 
                 case ENodeDirection.RightTop:
-                    return new Point(CenterPos.X - LineLength * Math.Cos(rDegree120Num), CenterPos.Y + LineLength * Math.Sin(rDegree120Num));
+                    return new Point(CenterPos.X + LineLength * (rDouble-0.5), CenterPos.Y - LineLength * Math.Sin(rDegree120Num));
 
                 case ENodeDirection.Right:
-                    return new Point(CenterPos.X - LineLength * Math.Cos(rDegree60Num), CenterPos.Y - LineLength * Math.Sin(rDegree60Num));
+                    return new Point(CenterPos.X + LineLength * Math.Cos(rDegree60Num), CenterPos.Y - LineLength * Math.Sin(rDegree60Num));
 
                 case ENodeDirection.RightBottom:
-                    return new Point(CenterPos.X - LineLength * Math.Cos(rDegree60Num), CenterPos.Y - LineLength * Math.Sin(rDegree60Num));
+                    return new Point(CenterPos.X + LineLength * Math.Cos(rDegree60Num), CenterPos.Y + LineLength * Math.Sin(rDegree60Num));
 
                 case ENodeDirection.LeftBottom:
-                    return new Point(CenterPos.X - LineLength * Math.Cos(rDegree60Num), CenterPos.Y - LineLength * Math.Sin(rDegree60Num));
+                    return new Point(CenterPos.X + LineLength * (rDouble - 0.5), CenterPos.Y +  LineLength * Math.Sin(rDegree120Num));
 
                 case ENodeDirection.Left:
-                    return new Point(CenterPos.X - LineLength * Math.Cos(rDegree60Num), CenterPos.Y - LineLength * Math.Sin(rDegree60Num));
+                    return new Point(CenterPos.X - LineLength * Math.Cos(rDegree60Num), CenterPos.Y + LineLength * Math.Sin(rDegree60Num));
             }
 
 

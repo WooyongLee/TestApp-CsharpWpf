@@ -116,7 +116,7 @@ namespace NetworkNodeControl
             else
             {
                 // 같은 레벨에서는 여섯방향 공간을 돌면서 노드를 배치하기
-                NodePositionDic.Add(termID, ConstValue.SetLeftTopPos(nodeLevel, ENodeDirection.RightTop));
+                NodePositionDic.Add(termID, ConstValue.SetLeftTopPos(nodeLevel, ENodeDirection.LeftBottom));
             }
         }
 
