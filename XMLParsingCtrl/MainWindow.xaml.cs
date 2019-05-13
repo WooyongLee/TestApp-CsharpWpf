@@ -1,5 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Forms;
 using System.Xml;
@@ -169,10 +172,28 @@ namespace XMLParsingCtrl
         }
     }
 
-    public class MapItem
+    public class MapItem : INotifyPropertyChanged
     {
-        public bool IsCheck { get; set; }
+        private bool m_IsCheck;
+        public bool IsCheck
+        {
+            get { return m_IsCheck; }
+            set
+            {
+                m_IsCheck = value;
+                NotifyPropertyChanged("IsCheck");
+            }
+        }
         public string FilePath { get; set; }
         public string Scale { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
 }
