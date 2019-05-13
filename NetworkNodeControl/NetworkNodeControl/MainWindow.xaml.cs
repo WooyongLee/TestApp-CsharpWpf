@@ -37,7 +37,7 @@ namespace NetworkNodeControl
         {
             InitializeComponent();
 
-            Nodes = new NetworkNode[ConstValue.MaxNode + 1];
+            Nodes = new NetworkNode[NodeConstValue.MaxNode + 1];
 
             EllipseList = new List<Ellipse>();
             LineList = new List<Line>();
@@ -104,20 +104,32 @@ namespace NetworkNodeControl
 
         }
 
+        // 임시변수
+        int posIndex = 0;
+
         // canvas 내에 노드들의 위치를 설정
         public void SetNodePoisitionDic(int nodeLevel, int termID, bool Is1stNode = false)
         {
             // 첫 노드는 center에 배치
             if (Is1stNode)
             {
-                NodePositionDic.Add(termID, ConstValue.CenterPos);
+                NodePositionDic.Add(termID, NodeConstValue.CenterPos);
             }
 
             else
             {
                 // 같은 레벨에서는 여섯방향 공간을 돌면서 노드를 배치하기
-                NodePositionDic.Add(termID, ConstValue.SetLeftTopPos(nodeLevel, ENodeDirection.LeftBottom));
+                switch (posIndex % 6)
+                {
+                    case 1: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.LeftTop)); break;
+                    case 2: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.RightTop)); break;
+                    case 3: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.Right)); break;
+                    case 4: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.RightBottom)); break;
+                    case 5: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.LeftBottom)); break;
+                    case 0: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.Left)); break;
+                }
             }
+            posIndex++;
         }
 
         // 노드 좌표 Dictionary에 모든 좌표들을 고정적으로 채우는 함수
@@ -246,46 +258,14 @@ namespace NetworkNodeControl
             return 0;
         }
 
-        // 노드 좌표 Dictionary에 좌표들을 채우는 함수 ver 2
-        public void SetPointDic2()
-        {
-            int coordX = 200, coordY = 120;
-            Point CenterPos = new Point(coordX, coordY);
-            int basicLength = 120;
-
-            // 센터 노드 배치
-            NodePositionDic.Add(0, CenterPos);
-
-            // 1 ~ 6 노드 배치(센터로 부터 거리는 basicLength 만큼)
-            NodePositionDic.Add(1, new Point(coordX - basicLength * Math.Sin(45), coordY + basicLength * Math.Sin(45))); // 노드 1
-            NodePositionDic.Add(2, new Point(coordX + basicLength * Math.Sin(45), coordY + basicLength * Math.Sin(45))); // 노드 2
-            NodePositionDic.Add(3, new Point(coordX + basicLength, coordY)); // 노드 3
-            NodePositionDic.Add(4, new Point(coordX + basicLength * Math.Sin(45), coordY - basicLength * Math.Sin(45))); // 노드 4
-            NodePositionDic.Add(5, new Point(coordX - basicLength * Math.Sin(45), coordY - basicLength * Math.Sin(45))); // 노드 5
-            NodePositionDic.Add(6, new Point(coordX - basicLength, coordY)); // 노드 6
-
-            // 7 ~ 10 노드 배치(센터로 부터 거리는 basicLength * 2 만큼)
-            NodePositionDic.Add(7, new Point(coordX - 3 * Math.Sin(45), coordY + basicLength * Math.Sin(45))); // 노드 7
-            NodePositionDic.Add(8, new Point(coordX + 3 * Math.Sin(45), coordY + basicLength * Math.Sin(45))); // 노드 8
-            NodePositionDic.Add(9, new Point(coordX + 3 * Math.Sin(45), coordY - basicLength * Math.Sin(45))); // 노드 9
-            NodePositionDic.Add(10, new Point(coordX - 3 * Math.Sin(45), coordY - basicLength * Math.Sin(45))); // 노드 10
-
-            // 11 ~ 16 노드 배치 (센터로 부터 거리는 basicLength * 2 만큼, 제 2 노드 고려)
-            NodePositionDic.Add(11, new Point(coordX, coordY - basicLength * 2 * Math.Sin(60))); // 노드 11
-            NodePositionDic.Add(12, new Point(coordX - basicLength, coordY + basicLength * 2 * Math.Sin(60))); // 노드 12
-            NodePositionDic.Add(13, new Point(coordX, coordY + basicLength * 2 * Math.Sin(60))); // 노드 13
-            NodePositionDic.Add(14, new Point(coordX + basicLength, coordY + basicLength * 2 * Math.Sin(60))); // 노드 14
-
-        }
-
         public Point GetEllipseCenter(Ellipse ellipse)
         {
             Point pt = new Point();
             double top = Canvas.GetTop(ellipse);
             double left = Canvas.GetLeft(ellipse);
 
-            pt.Y = top + ConstValue.EllipseHeight / 2;
-            pt.X = left + ConstValue.EllipseWidth / 2;
+            pt.Y = top + NodeConstValue.EllipseHeight / 2;
+            pt.X = left + NodeConstValue.EllipseWidth / 2;
             return pt;
         }
 
@@ -318,7 +298,10 @@ namespace NetworkNodeControl
             line.StrokeThickness = 3;//선 두께 지정
             line.Opacity = .7; // 투명도
 
-            this.canvas.Children.Add(line);
+            Dispatcher.Invoke(new Action(() =>
+            {
+                this.canvas.Children.Add(line);
+            }));
             LineList.Add(line);
             numOfLine++;
         }
@@ -336,38 +319,38 @@ namespace NetworkNodeControl
 
             if ((p1.X > p2.X) && (p1.Y > p2.Y))
             {
-                p1.X = p1.X - ConstValue.EllipseRadius * ratioX - absValue;
-                p2.X = p2.X + ConstValue.EllipseRadius * ratioX + absValue;
+                p1.X = p1.X - NodeConstValue.EllipseRadius * ratioX - absValue;
+                p2.X = p2.X + NodeConstValue.EllipseRadius * ratioX + absValue;
 
-                p1.Y = p1.Y - ConstValue.EllipseRadius * ratioY - absValue;
-                p2.Y = p2.Y + ConstValue.EllipseRadius * ratioY + absValue;
+                p1.Y = p1.Y - NodeConstValue.EllipseRadius * ratioY - absValue;
+                p2.Y = p2.Y + NodeConstValue.EllipseRadius * ratioY + absValue;
             }
 
             else if ((p1.X < p2.X) && (p1.Y > p2.Y))
             {
-                p1.X = p1.X + ConstValue.EllipseRadius * ratioX + absValue;
-                p2.X = p2.X - ConstValue.EllipseRadius * ratioX - absValue;
+                p1.X = p1.X + NodeConstValue.EllipseRadius * ratioX + absValue;
+                p2.X = p2.X - NodeConstValue.EllipseRadius * ratioX - absValue;
 
-                p1.Y = p1.Y - ConstValue.EllipseRadius * ratioY - absValue;
-                p2.Y = p2.Y + ConstValue.EllipseRadius * ratioY + absValue;
+                p1.Y = p1.Y - NodeConstValue.EllipseRadius * ratioY - absValue;
+                p2.Y = p2.Y + NodeConstValue.EllipseRadius * ratioY + absValue;
             }
 
             else if ((p1.X > p2.X) && (p1.Y < p2.Y))
             {
-                p1.X = p1.X - ConstValue.EllipseRadius * ratioX - absValue;
-                p2.X = p2.X + ConstValue.EllipseRadius * ratioX + absValue;
+                p1.X = p1.X - NodeConstValue.EllipseRadius * ratioX - absValue;
+                p2.X = p2.X + NodeConstValue.EllipseRadius * ratioX + absValue;
 
-                p1.Y = p1.Y + ConstValue.EllipseRadius * ratioY + absValue;
-                p2.Y = p2.Y - ConstValue.EllipseRadius * ratioY - absValue;
+                p1.Y = p1.Y + NodeConstValue.EllipseRadius * ratioY + absValue;
+                p2.Y = p2.Y - NodeConstValue.EllipseRadius * ratioY - absValue;
             }
 
             else if ((p1.X < p2.X) && (p1.Y < p2.Y))
             {
-                p1.X = p1.X + ConstValue.EllipseRadius * ratioX + absValue;
-                p2.X = p2.X - ConstValue.EllipseRadius * ratioX - absValue;
+                p1.X = p1.X + NodeConstValue.EllipseRadius * ratioX + absValue;
+                p2.X = p2.X - NodeConstValue.EllipseRadius * ratioX - absValue;
 
-                p1.Y = p1.Y + ConstValue.EllipseRadius * ratioY + absValue;
-                p2.Y = p2.Y - ConstValue.EllipseRadius * ratioY - absValue;
+                p1.Y = p1.Y + NodeConstValue.EllipseRadius * ratioY + absValue;
+                p2.Y = p2.Y - NodeConstValue.EllipseRadius * ratioY - absValue;
             }
 
             // 두 좌표 중 한 좌표가 같은 경우에 대한 처리
@@ -375,14 +358,14 @@ namespace NetworkNodeControl
             {
                 if (p1.Y < p2.Y)
                 {
-                    p1.Y = p1.Y + ConstValue.EllipseRadius;
-                    p2.Y = p2.Y - ConstValue.EllipseRadius;
+                    p1.Y = p1.Y + NodeConstValue.EllipseRadius;
+                    p2.Y = p2.Y - NodeConstValue.EllipseRadius;
                 }
 
                 else if (p1.Y > p2.Y)
                 {
-                    p1.Y = p1.Y - ConstValue.EllipseRadius;
-                    p2.Y = p2.Y + ConstValue.EllipseRadius;
+                    p1.Y = p1.Y - NodeConstValue.EllipseRadius;
+                    p2.Y = p2.Y + NodeConstValue.EllipseRadius;
                 }
             }
 
@@ -390,14 +373,14 @@ namespace NetworkNodeControl
             {
                 if (p1.X < p2.X)
                 {
-                    p1.X = p1.X + ConstValue.EllipseRadius;
-                    p2.X = p2.X - ConstValue.EllipseRadius;
+                    p1.X = p1.X + NodeConstValue.EllipseRadius;
+                    p2.X = p2.X - NodeConstValue.EllipseRadius;
                 }
 
                 else if (p1.X > p2.X)
                 {
-                    p1.X = p1.X - ConstValue.EllipseRadius;
-                    p2.X = p2.X + ConstValue.EllipseRadius;
+                    p1.X = p1.X - NodeConstValue.EllipseRadius;
+                    p2.X = p2.X + NodeConstValue.EllipseRadius;
                 }
             }
         }
@@ -406,7 +389,10 @@ namespace NetworkNodeControl
         {
             LineCutter(ref p1, ref p2);
             Line removedLine = LineList.Find(x => x.X1 == p1.X && x.Y1 == p1.Y && x.X2 == p2.X && x.Y2 == p2.Y);
-            this.canvas.Children.Remove(removedLine);
+            Dispatcher.Invoke(new Action(() =>
+            {
+                this.canvas.Children.Remove(removedLine);
+            }));
             LineList.Remove(removedLine);
         }
         
@@ -456,7 +442,7 @@ namespace NetworkNodeControl
             }
         }
 
-        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        public void ClearAllNode()
         {
             foreach (Line line in LineList)
             {
@@ -488,7 +474,11 @@ namespace NetworkNodeControl
             LineList.Clear();
             TextBlockList.Clear();
             nodeIndex = 1;
+        }
 
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            ClearAllNode();
         }
 
         // 모든 노드를 Canvas에 세팅
@@ -539,34 +529,37 @@ namespace NetworkNodeControl
         /// <returns>Network Node 데이터</returns>
         public NetworkNode AddNode(int termID)
         {
-            if (nodeIndex > ConstValue.MaxNode || nodeIndex == 0) return new NetworkNode();
+            if (nodeIndex > NodeConstValue.MaxNode || nodeIndex == 0) return new NetworkNode();
 
             NetworkNode node = Nodes[nodeIndex];
 
-            // 노드에 타원 생성 및 노드번호 할당
-            node.ellipse = new Ellipse { Width = ConstValue.EllipseWidth, Height = ConstValue.EllipseHeight };
-            node.NodeTermID = termID;
-
-            // 노드 이름 설정
-            node.ellipse.Name = "Node_" + nodeIndex.ToString();
-            
             double coordX = NodePositionDic[nodeIndex].X;
             double coordY = NodePositionDic[nodeIndex].Y;
 
-            // Canvas에 해당 좌표에 타원 설정 및 추가
-            Canvas.SetLeft(node.ellipse, coordX);
-            Canvas.SetTop(node.ellipse, coordY);
-            canvas.Children.Add(node.ellipse);
-            EllipseList.Add(node.ellipse);
+            Dispatcher.Invoke(new Action(() =>
+            {
+                // 노드 번호 할당 및 이름 설정
+                node.NodeTermID = termID;
+                node.ellipse.Name = "Node_" + nodeIndex.ToString();
 
-            // 타원 내에 텍스트박스 설정
-            node.textBlock.Text = termID.ToString() + "번";
-            TextBlock textBlock = node.textBlock;
+                // 타원 생성
+                node.ellipse = new Ellipse { Width = NodeConstValue.EllipseWidth, Height = NodeConstValue.EllipseHeight };
 
-            Canvas.SetLeft(textBlock, coordX + 10);
-            Canvas.SetTop(textBlock, coordY + 10);
-            canvas.Children.Add(textBlock);
-            TextBlockList.Add(textBlock);
+                // Canvas에 해당 좌표에 타원 설정 및 추가
+                Canvas.SetLeft(node.ellipse, coordX);
+                Canvas.SetTop(node.ellipse, coordY);
+                canvas.Children.Add(node.ellipse);
+                EllipseList.Add(node.ellipse);
+
+                // 타원 내에 텍스트박스 설정
+                node.textBlock.Text = termID.ToString() + "번";
+                TextBlock textBlock = node.textBlock;
+
+                Canvas.SetLeft(textBlock, coordX + 10);
+                Canvas.SetTop(textBlock, coordY + 10);
+                canvas.Children.Add(textBlock);
+                TextBlockList.Add(textBlock);
+            }));
 
             nodeIndex++;
             return node;
@@ -848,13 +841,13 @@ namespace NetworkNodeControl
 
         public NetworkNode()
         {
-            this.ellipse = new Ellipse { Width = ConstValue.EllipseWidth, Height = ConstValue.EllipseHeight };
+            this.ellipse = new Ellipse { Width = NodeConstValue.EllipseWidth, Height = NodeConstValue.EllipseHeight };
             this.textBlock = new TextBlock();
         }
         public NetworkNode(NetworkType type)
         {
             networkType = type;
-            this.ellipse = new Ellipse { Width = ConstValue.EllipseWidth, Height = ConstValue.EllipseHeight };
+            this.ellipse = new Ellipse { Width = NodeConstValue.EllipseWidth, Height = NodeConstValue.EllipseHeight };
             this.textBlock = new TextBlock();
             ConnectedNode = new List<int>();
         }

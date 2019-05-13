@@ -7,7 +7,7 @@ using System.Windows;
 
 namespace NetworkNodeControl
 {
-    public static class ConstValue
+    public static class NodeConstValue
     {
         public readonly static int EllipseRadius = 20;
         public readonly static int EllipseWidth = 40;
@@ -30,7 +30,7 @@ namespace NetworkNodeControl
         public readonly static double Degree30 = (Math.PI / 6);
 
         // 해당하는 노드의 방향으로 위치 설정
-        public static Point SetLeftTopPos(int Depth, ENodeDirection eNodeDirection)
+        public static Point SetNodePos(int Depth, ENodeDirection eNodeDirection)
         {
             // 랜덤 객체 생성
             Random rDegree = new Random();
@@ -75,12 +75,6 @@ namespace NetworkNodeControl
 
             return new Point(CenterPos.X - LineLength * Math.Cos(rDegree60Num), CenterPos.Y - LineLength * Math.Sin(rDegree60Num));
         }
-
-
-
-
-
-
     }
 
     public enum ENodeDirection

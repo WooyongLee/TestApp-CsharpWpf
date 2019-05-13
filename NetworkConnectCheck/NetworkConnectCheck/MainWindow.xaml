@@ -1,0 +1,26 @@
+﻿<Window x:Class="NetworkConnectCheck.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock >연결된 모든 네트워크 : </TextBlock>
+                <TextBlock Margin="5, 0, 0, 0" x:Name="ConnectedNetworkTextBlock"></TextBlock>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 0">
+                <TextBlock >1st 네트워크 :</TextBlock>
+                <TextBlock Margin="5, 0, 0, 0" x:Name="FirstNetworkTextBlock" Width="100"></TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 0">
+                <TextBlock >2nd 네트워크 :</TextBlock>
+                <TextBlock Margin="5, 0, 0, 0" x:Name="SecondNetworkTextBlock" Width="100"></TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 0">
+                <TextBlock >가상전장 네트워크 :</TextBlock>
+                <TextBlock Margin="5, 0, 0, 0" x:Name="VirtualNetworkTextBlock" Width="100"></TextBlock>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
