@@ -34,21 +34,21 @@
                 <RowDefinition Height="1*"></RowDefinition>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0"  Orientation="Horizontal" >
-                <Button Content="노드추가" Width="50" Margin="5,0,15,0" Click="AddNodeButton_Click"></Button>
-                <TextBox x:Name="NodeFromTextBox" Margin="5,0,5,0" Width="20"></TextBox>
-                <TextBlock Text=" 번 노드 에서"  Margin="0,0,5,0"></TextBlock>
-                <TextBox x:Name="NodeToTextBox" Margin="5,0,5,0" Width="20"></TextBox>
-                <TextBlock Text=" 번 노드 로" Margin="0,0,5,0"></TextBlock>
-                <Button Content="연결추가" Width="50" Margin="15,0,5,0" Click="AddLineButton_Click"></Button>
-                <Button Content="연결삭제" Width="50" Margin="5,0,5,0" Click="DeleteLineButton_Click"></Button>
+                <Button Content="노드추가" Width="50" Margin="5,0,15,0" Click="AddNodeButton_Click" IsEnabled="False"></Button>
+                <TextBox x:Name="NodeFromTextBox" Margin="5,0,5,0" Width="20" IsEnabled="False"> </TextBox>
+                <TextBlock Text=" 번 노드 에서"  Margin="0,0,5,0" IsEnabled="False"></TextBlock>
+                <TextBox x:Name="NodeToTextBox" Margin="5,0,5,0" Width="20" IsEnabled="False"></TextBox>
+                <TextBlock Text=" 번 노드 로" Margin="0,0,5,0" IsEnabled="False"></TextBlock>
+                <Button Content="연결추가" Width="50" Margin="15,0,5,0" Click="AddLineButton_Click" IsEnabled="False"></Button>
+                <Button Content="연결삭제" Width="50" Margin="5,0,5,0" Click="DeleteLineButton_Click" IsEnabled="False"></Button>
 
             </StackPanel>
             <StackPanel Grid.Row="1" Orientation="Horizontal" >
-                <TextBox x:Name="NodeOnOffTextBox" Margin="5,0,5,0" Width="20"></TextBox>
-                <TextBlock Text=" 번 노드" Margin="0,8,5,0"></TextBlock>
-                <Button Content="On/OFF" Width="40" Margin="5,0,5,0" Click="OnOffButton_Click"></Button>
+                <TextBox x:Name="NodeOnOffTextBox" Margin="5,0,5,0" Width="20" IsEnabled="False"></TextBox>
+                <TextBlock Text=" 번 노드" Margin="0,8,5,0" IsEnabled="False"></TextBlock>
+                <Button Content="On/OFF" Width="40" Margin="5,0,5,0" Click="OnOffButton_Click" IsEnabled="False"></Button>
 
-                <Button Content="모두지우기" Width="70" Margin="25,0,5,0" Click="ClearButton_Click"></Button>
+                <Button Content="모두지우기" Width="70" Margin="25,0,5,0" Click="ClearButton_Click" IsEnabled="False"></Button>
             </StackPanel>
             <!--<StackPanel Grid.Row="2" Orientation="Horizontal">
                 <TextBlock Margin="3">UL_GrantTermID :</TextBlock>

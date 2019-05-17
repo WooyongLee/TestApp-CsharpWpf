@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -28,6 +29,7 @@ namespace NetworkNodeControl
         public readonly static double Degree90 = (Math.PI / 2);
         public readonly static double Degree60 = (Math.PI / 3);
         public readonly static double Degree30 = (Math.PI / 6);
+        public readonly static double Degree45 = (Math.PI / 4);
 
         // 해당하는 노드의 방향으로 위치 설정
         public static Point SetNodePos(int Depth, ENodeDirection eNodeDirection)
@@ -44,32 +46,43 @@ namespace NetworkNodeControl
             // 0 - 60도 사이의 임의의 수 구하기
             double rDegree60Num = rDegree.NextDouble() * Degree60;
 
-            if (rDegree120Num < 0.15)
+            // 0 - 45도 사이의 임의의 수 구하기
+            double rDegree45Num = rDegree.NextDouble() * Degree45;
+
+            if (Math.Abs(rDouble - 0.5) < 0.2)
             {
-                rDouble += 0.15;
+                if (rDouble >= 0.5)
+                {
+                    rDouble += 0.27;
+                }
+                else
+                {
+                    rDouble -= 0.27;
+                }
             }
+
+
+            Thread.Sleep(55);
 
             switch (eNodeDirection)
             {
-            
-
                 case ENodeDirection.LeftTop:
-                    return new Point(CenterPos.X - LineLength * Math.Cos(rDegree60Num), CenterPos.Y - LineLength * Math.Sin(rDegree60Num));
+                    return new Point(CenterPos.X - LineLength * Math.Cos(rDegree45Num), CenterPos.Y - LineLength * Math.Sin(rDegree45Num));
 
                 case ENodeDirection.RightTop:
                     return new Point(CenterPos.X + LineLength * (rDouble-0.5), CenterPos.Y - LineLength * Math.Sin(rDegree120Num));
 
                 case ENodeDirection.Right:
-                    return new Point(CenterPos.X + LineLength * Math.Cos(rDegree60Num), CenterPos.Y - LineLength * Math.Sin(rDegree60Num));
+                    return new Point(CenterPos.X + LineLength * Math.Cos(rDegree45Num), CenterPos.Y - LineLength * Math.Sin(rDegree45Num));
 
                 case ENodeDirection.RightBottom:
-                    return new Point(CenterPos.X + LineLength * Math.Cos(rDegree60Num), CenterPos.Y + LineLength * Math.Sin(rDegree60Num));
+                    return new Point(CenterPos.X + LineLength * Math.Cos(rDegree45Num), CenterPos.Y + LineLength * Math.Sin(rDegree45Num));
 
                 case ENodeDirection.LeftBottom:
                     return new Point(CenterPos.X + LineLength * (rDouble - 0.5), CenterPos.Y +  LineLength * Math.Sin(rDegree120Num));
 
                 case ENodeDirection.Left:
-                    return new Point(CenterPos.X - LineLength * Math.Cos(rDegree60Num), CenterPos.Y + LineLength * Math.Sin(rDegree60Num));
+                    return new Point(CenterPos.X - LineLength * Math.Cos(rDegree45Num), CenterPos.Y + LineLength * Math.Sin(rDegree45Num));
             }
 
 

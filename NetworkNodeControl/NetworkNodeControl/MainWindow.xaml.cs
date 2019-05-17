@@ -30,7 +30,7 @@ namespace NetworkNodeControl
         List<Line> LineList;
         List<TextBlock> TextBlockList;
 
-        // RA 데이터가 들어오는 상황을 추가
+        // RA 데이터가 들어오는 상황을 추가 ([UL_GrantTermID] : [DL_TermID List] Pair)
         private Dictionary<int, List<int>> RAFrameUnitDic = new Dictionary<int, List<int>>();
 
         public MainWindow()
@@ -43,7 +43,7 @@ namespace NetworkNodeControl
             LineList = new List<Line>();
             TextBlockList = new List<TextBlock>();
 
-            Nodes[nodeIndex++] = new NetworkNode(NetworkType.None);
+            Nodes[nodeIndex] = new NetworkNode(NetworkType.None);
 
             // 노드 객체 배열에 모든 Item들 생성
             for (int i = 1; i < Nodes.Length; i++)
@@ -57,52 +57,38 @@ namespace NetworkNodeControl
            // this.AddAllNode();
         }
 
-        // RA 데이터가 들어올 시 노드 그리기를 제어
-        public void SetRANodeData(int _GrantTermID, int ConnectedTermID, bool IsNewKey)
+        // 절차 : 제어부로부터 WDLN RA 받음 -> DrawDiagramFromRAData() -> AddConnection() ->
+
+        // RA 데이터를 가지고 노드 연결도를 그리기
+        private void DrawDiagramFromRAData()
         {
-            // 키가 없다면 키를 만들고 새로 들어온 노드와 최초 연결
-            // UL_GrantTermID, ConnectTermID 직접 입력 받을 시 해당 조건을 만족함[추후 제거]
-            if (!RAFrameUnitDic.ContainsKey(_GrantTermID))
+            // 19. 5. 17 변경
+            // RA 들어온다는 가정 부분
+            if (RAFrameUnitDic.Count <= 0)
             {
-                // Count가 0일 경우에
-                if (RAFrameUnitDic.Count == 0)
-                {
-                    List<int> AddedList = new List<int>();
-                    AddedList.Add(ConnectedTermID);
-                    RAFrameUnitDic.Add(_GrantTermID, AddedList);
-
-                    // 최초에 데이터를 받은 경우에 연결 생성
-                    AddConnection(_GrantTermID, ConnectedTermID, true);
-                }
-                
-                // Count가 1보다 큰 경우일 때 ( Level 2 노드 이상 )
-                else
-                {
-
-                }
-
-                // To Do :: 이미 이전의 키와 연결된 노드가 있는 경우에
-                // [(1) 노드 재생성 방지] 및 [(2)기존 노드와의 연결]
+                return;
             }
 
-            // 상황발생기 발생 시 - 추후 테스트는 상황발생기를 통해서
-            // 상황발생기를 이용하면 이미 Dictionary 안에 데이터들이 차 있는 상태에서 그림을 그리기
-            else
+            int iterIndex = 0;
+            // 단일 Level의 노드 데이터롤 그릴 때
+            // 아마 한번 반복할 것임
+            foreach (KeyValuePair<int, List<int>> pair in RAFrameUnitDic)
             {
-                if (IsNewKey)
+                bool IsNewKey = true;
+                for (int i = 0; i < pair.Value.Count; i++)
                 {
-                    // 최초에 데이터를 받은 경우에 연결 생성
-                    AddConnection(_GrantTermID, ConnectedTermID, IsNewKey);
+                    // Key :: GrantTermID (SourceID), Value :: DL_TermID (ConnectedTermID) // 19. 5. 17 변경 (대부분 삭제)
+                    AddConnection(pair.Key, pair.Value[i], IsNewKey);
+                    IsNewKey = false;
                 }
 
-                else
-                {
-                    AddConnection(_GrantTermID, ConnectedTermID);
-                }
-                // RAFrameUnitDic[_GrantTermID].Add(ConnectedTermID);
+                iterIndex++;
             }
-
         }
+
+        //****
+        // 19. 5. 17 SetRANodeData() 삭제
+        //****
 
         // 임시변수
         int posIndex = 0;
@@ -164,30 +150,6 @@ namespace NetworkNodeControl
 
         }
 
-        // RA 데이터를 가지고 노드 연결도를 그리기
-        private void DrawDiagramFromRAData()
-        {
-            if (RAFrameUnitDic.Count <= 0)
-            {
-                return;
-            }
-
-            int iterIndex = 0;
-            // 단일 Level의 노드 데이터롤 그릴 때
-            // 아마 한번 반복할 것임
-            foreach (KeyValuePair<int, List<int>> pair in RAFrameUnitDic)
-            {
-                bool IsNewKey = true;
-                for ( int i = 0; i < pair.Value.Count; i++)
-                {
-                    SetRANodeData(pair.Key, pair.Value[i], IsNewKey); 
-                    IsNewKey = false;
-                }
-
-                iterIndex++;
-            }
-        }
-
         /// <summary>
         /// 들어온 RA 데이터를 통해서 연결 구축하기
         /// </summary>
@@ -198,7 +160,7 @@ namespace NetworkNodeControl
         {
             // 이미 TermId를 갖고 있는 경우에 처리하기
 
-            // 최초 데이터 수신 시시작 노드 그려주기
+            // 최초 데이터 수신 시시작 노드 그려주기(중앙노드)
             if ( IsFirstRcv )
             {
                 // 이미 추가된 노드가 아닌 경우에
@@ -273,6 +235,12 @@ namespace NetworkNodeControl
         {
             Line line = new Line();
 
+            // Nan 값 확인 후 연산
+            if (double.IsNaN(p1.X) || double.IsNaN(p2.X) || double.IsNaN(p1.Y) || double.IsNaN(p2.Y))
+            {
+                return;
+            }
+
             LineCutter(ref p1, ref p2);
 
             // 중복 라인 확인
@@ -298,10 +266,8 @@ namespace NetworkNodeControl
             line.StrokeThickness = 3;//선 두께 지정
             line.Opacity = .7; // 투명도
 
-            Dispatcher.Invoke(new Action(() =>
-            {
-                this.canvas.Children.Add(line);
-            }));
+            this.canvas.Children.Add(line);
+           
             LineList.Add(line);
             numOfLine++;
         }
@@ -529,37 +495,36 @@ namespace NetworkNodeControl
         /// <returns>Network Node 데이터</returns>
         public NetworkNode AddNode(int termID)
         {
-            if (nodeIndex > NodeConstValue.MaxNode || nodeIndex == 0) return new NetworkNode();
+            if (nodeIndex >= NodeConstValue.MaxNode) return new NetworkNode();
 
             NetworkNode node = Nodes[nodeIndex];
 
             double coordX = NodePositionDic[nodeIndex].X;
             double coordY = NodePositionDic[nodeIndex].Y;
 
-            Dispatcher.Invoke(new Action(() =>
-            {
-                // 노드 번호 할당 및 이름 설정
-                node.NodeTermID = termID;
-                node.ellipse.Name = "Node_" + nodeIndex.ToString();
 
-                // 타원 생성
-                node.ellipse = new Ellipse { Width = NodeConstValue.EllipseWidth, Height = NodeConstValue.EllipseHeight };
+            // 노드 번호 할당 및 이름 설정
+            node.NodeTermID = termID;
+            node.ellipse.Name = "Node_" + nodeIndex.ToString();
 
-                // Canvas에 해당 좌표에 타원 설정 및 추가
-                Canvas.SetLeft(node.ellipse, coordX);
-                Canvas.SetTop(node.ellipse, coordY);
-                canvas.Children.Add(node.ellipse);
-                EllipseList.Add(node.ellipse);
+            // 타원 생성
+            node.ellipse = new Ellipse { Width = NodeConstValue.EllipseWidth, Height = NodeConstValue.EllipseHeight };
 
-                // 타원 내에 텍스트박스 설정
-                node.textBlock.Text = termID.ToString() + "번";
-                TextBlock textBlock = node.textBlock;
+            // Canvas에 해당 좌표에 타원 설정 및 추가
+            Canvas.SetLeft(node.ellipse, coordX);
+            Canvas.SetTop(node.ellipse, coordY);
+            canvas.Children.Add(node.ellipse);
+            EllipseList.Add(node.ellipse);
 
-                Canvas.SetLeft(textBlock, coordX + 10);
-                Canvas.SetTop(textBlock, coordY + 10);
-                canvas.Children.Add(textBlock);
-                TextBlockList.Add(textBlock);
-            }));
+            // 타원 내에 텍스트박스 설정
+            node.textBlock.Text = termID.ToString() + "번";
+            TextBlock textBlock = node.textBlock;
+
+            Canvas.SetLeft(textBlock, coordX + 10);
+            Canvas.SetTop(textBlock, coordY + 10);
+            canvas.Children.Add(textBlock);
+            TextBlockList.Add(textBlock);
+
 
             nodeIndex++;
             return node;
@@ -674,12 +639,12 @@ namespace NetworkNodeControl
             List<int> ConnectedTermIDList = new List<int>();
             for ( int i = 0 ; i < 5 ; i++)
             {
-                int termID = i + 2;
+                int termID = i + 1;
                 ConnectedTermIDList.Add(termID);
             }
 
-            // UL_Grant TermID에 1번 , Connected TermID에 2, 3, 4, 5, 6번까지 대입
-            RAFrameUnitDic.Add(1, ConnectedTermIDList);
+            // UL_Grant TermID에 0번 , Connected TermID에 1, 2, 3, 4, 5번까지 대입
+            RAFrameUnitDic.Add(0, ConnectedTermIDList);
 
             DrawDiagramFromRAData();
         }
@@ -799,7 +764,7 @@ namespace NetworkNodeControl
             // 모든 노드 TermID 초기화
             for (int i = 0; i < Nodes.Length; i++)
             {
-                Nodes[i].NodeTermID = 0;
+                Nodes[i].NodeTermID = -1;
             }
 
             // 모든 List Clear
@@ -808,7 +773,7 @@ namespace NetworkNodeControl
             TextBlockList.Clear();
             
             // 인덱스 제자리로
-            nodeIndex = 1;
+            nodeIndex = 0; // 19. 5. 17 변경
 
             // 상태변수 초기화
 
@@ -841,12 +806,14 @@ namespace NetworkNodeControl
 
         public NetworkNode()
         {
+            this.NodeTermID = -1;
             this.ellipse = new Ellipse { Width = NodeConstValue.EllipseWidth, Height = NodeConstValue.EllipseHeight };
             this.textBlock = new TextBlock();
         }
         public NetworkNode(NetworkType type)
         {
             networkType = type;
+            this.NodeTermID = -1;
             this.ellipse = new Ellipse { Width = NodeConstValue.EllipseWidth, Height = NodeConstValue.EllipseHeight };
             this.textBlock = new TextBlock();
             ConnectedNode = new List<int>();
