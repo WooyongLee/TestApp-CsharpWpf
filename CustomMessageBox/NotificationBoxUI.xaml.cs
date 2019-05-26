@@ -39,19 +39,26 @@ namespace CustomMessageBox
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-             Height = (NotifyTextBox.LineCount * 27) + BodyGrid.Height + 50;
+             Height = (NotifyTextBox.LineCount * 27) + BodyGrid.Height +  150;
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            this.FastClose();
+            // this.FastClose();
         }
 
         public void FastClose()
         {
-            DAnim = new DoubleAnimation(0, (Duration)TimeSpan.FromSeconds(0.3));
-            DAnim.Completed += (s, _) => this.Close();
-            this.BeginAnimation(UIElement.OpacityProperty, DAnim);
+            Closing -= Window_Closed;
+            Close();
+            //DAnim = new DoubleAnimation(0, (Duration)TimeSpan.FromSeconds(0.3));
+            //DAnim.Completed += (s, _) => this.Close();
+            //this.BeginAnimation(UIElement.OpacityProperty, DAnim);
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.FastClose();
         }
     }
 }
