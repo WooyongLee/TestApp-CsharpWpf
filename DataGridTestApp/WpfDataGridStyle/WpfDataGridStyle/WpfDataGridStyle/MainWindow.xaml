@@ -1,0 +1,13 @@
+﻿<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	x:Class="WpfDataGridStyle.MainWindow"
+	x:Name="Window"
+	Title="MainWindow"
+	Width="480" Height="320">
+
+	<Grid x:Name="LayoutRoot">
+		<DataGrid Name="customerDataGrid" CanUserAddRows="True" CanUserDeleteRows="True">
+		</DataGrid>
+	</Grid>
+</Window>
