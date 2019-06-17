@@ -1,0 +1,81 @@
+﻿<Window x:Class="BitmapCheckerTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <StackPanel x:Name="CheckBoxesPanel" Orientation="Vertical">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Label Margin="3, 0, 0, 0">01</Label>
+                <CheckBox x:Name="RBCheckBox1" Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[0], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Checked="RBCheckBox1_Checked" Unchecked="RBCheckBox1_Unchecked"
+                          IsEnabled="{Binding IsEnable[0], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">02</Label>
+                <CheckBox x:Name="RBCheckBox2" Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[1], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[1], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">03</Label>
+                <CheckBox x:Name="RBCheckBox3" Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[2], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[2], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">04</Label>
+                <CheckBox x:Name="RBCheckBox4" Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[3], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[3], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Label Margin="3, 0, 0, 0">05</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[4], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[4], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">06</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[5], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[5], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">07</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[6], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[6], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">08</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[7], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[7], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Label Margin="3, 0, 0, 0">09</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[8], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[8], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">10</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[9], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[9], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">11</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[10], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[10], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">12</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[11], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[11], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Label Margin="3, 0, 0, 0">13</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[12], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[12], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">14</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[13], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[13], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">15</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[14], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[14], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                <Label Margin="3, 0, 0, 0">16</Label>
+                <CheckBox Margin="0, 6, 0, 0" Command="{Binding RBCheckCommand}"
+                          IsChecked="{Binding IsCheck[15], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          IsEnabled="{Binding IsEnable[15], UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
