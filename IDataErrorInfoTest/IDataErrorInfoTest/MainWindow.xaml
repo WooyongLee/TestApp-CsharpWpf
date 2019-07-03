@@ -42,7 +42,7 @@
             <TextBlock Width="50" Text="위도 : " VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
             <TextBox x:Name="LongituteTextBox" Width="100" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource ResourceKey=PosTextBoxStyle}">
                 <TextBox.Text>
-                    <Binding Path="Lon" UpdateSourceTrigger="PropertyChanged" ValidatesOnDataErrors="True">
+                    <Binding Path="Lon" UpdateSourceTrigger="PropertyChanged" ValidatesOnDataErrors="True" ValidatesOnNotifyDataErrors="True">
                         <Binding.ValidationRules>
                             <ExceptionValidationRule></ExceptionValidationRule>
                         </Binding.ValidationRules>

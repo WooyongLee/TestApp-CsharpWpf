@@ -27,3 +27,5 @@ UdpMulticastExample/bin/Debug/UdpMulticastExample.pdb
 UdpMulticastExample/bin/Debug/UdpMulticastExample.exe.config
 UdpMulticastExample/bin/Debug/UdpMulticastExample.exe
 UdpMulticastExample/.vs/UdpMulticastExample/v14/.suo
+BitmapCheckerTest/BitmapCheckerTest/bin/Debug/BitmapCheckerTest.vshost.exe
+LinqTest/bin/Debug/LinqTest.vshost.exe

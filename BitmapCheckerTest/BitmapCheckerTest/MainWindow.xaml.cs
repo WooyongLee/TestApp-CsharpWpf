@@ -8,13 +8,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace BitmapCheckerTest
 {
@@ -32,7 +27,10 @@ namespace BitmapCheckerTest
         // Combobox와 바인딩 된 리스트
         public List<int> TermIDList { get; set; }
 
-        public Dictionary<uint, RBChecker> TermIDRBCheckDic = new Dictionary<uint, RBChecker>();
+        public List<int> BackUpIDList { get; set; }
+
+        // Key : GrantID, Value : (DL Term) ID - RBChecker Dic 쌍의 Dictionary 정의
+        public Dictionary<uint, Dictionary<uint, RBChecker>> GrantTermIDRBDic = new Dictionary<uint, Dictionary<uint, RBChecker>>();
 
         // 네자리 숫자, 각 자리수 0 또는 1
         public int RowValue = 0;
@@ -40,6 +38,8 @@ namespace BitmapCheckerTest
 
         private bool IsInit = false;
         private uint TermID = 0;
+
+        private uint prevGrantID = 0;
 
         // 체크가 수정 되었는 지 확인하는 변수 
         private bool IsModified = false;
@@ -51,16 +51,21 @@ namespace BitmapCheckerTest
             CheckBoxVM = new RBChecker();
 
             TermIDList = new List<int>() { 1, 2, 3, 4, 5 };
+            BackUpIDList = new List<int>() { 1, 2, 3 };
 
             this.Loaded += async (s, e) =>
                 {
                     await Task.Delay(3000);
-                    this.CheckBoxVM.ClearAll();
+                    this.CheckBoxVM.ClearCurrentState();
                 };
-            
-            
+
+            for (uint i = 1; i <= 5; i++)
+            {
+            }
+
             this.DataContext = CheckBoxVM;
             this.IDCombobox.ItemsSource = TermIDList;
+            this.BackUpCombobox.ItemsSource = BackUpIDList;
         }
 
         private void RBCheckBox1_Checked(object sender, RoutedEventArgs e)
@@ -87,36 +92,26 @@ namespace BitmapCheckerTest
                 return;
             }
 
-            // Selection 전 ID에 Value 저장
-            // 키가 있을 경우
-            if (TermIDRBCheckDic.ContainsKey(TermID))
+            // BackUp TermID 설정
+            if ( BackUpCombobox.SelectedItem == null)
             {
-                TermIDRBCheckDic[TermID] = (RBChecker)CheckBoxVM.Clone();
+                return;
             }
 
-            // 키가 없을 경우 - 키를 생성하여 새 값을 넣어주기
-            else
+            TermID = uint.Parse(IDCombobox.SelectedItem.ToString());
+
+            uint selectedGrantTermID = uint.Parse(BackUpCombobox.SelectedItem.ToString());
+            Dictionary<uint, RBChecker> tmpIdRBCheckerDic = new Dictionary<uint, RBChecker>();
+            if (GrantTermIDRBDic.ContainsKey(selectedGrantTermID))
             {
-                TermIDRBCheckDic.Add(TermID, (RBChecker)CheckBoxVM.Clone());
+                if (GrantTermIDRBDic[selectedGrantTermID].ContainsKey(TermID))
+                {
+                    CheckBoxVM = (RBChecker)GrantTermIDRBDic[selectedGrantTermID][TermID].Clone();
+                }
             }
 
-            var strTermID = IDCombobox.SelectedItem.ToString();
-
-            TermID = uint.Parse(strTermID);
-        
-            // Selection 후 ID에 Value 저장
-            if (TermIDRBCheckDic.ContainsKey(TermID))
-            {
-                // 기존에 갖고 있던 데이터 적용
-                CheckBoxVM = (RBChecker)TermIDRBCheckDic[TermID].Clone();
-            }
-            else
-            {
-                CheckBoxVM.ClearAll();
-                TermIDRBCheckDic.Add(TermID, CheckBoxVM);
-            }
-
-            this.DataContext = TermIDRBCheckDic[TermID];
+            CheckBoxVM.ArrayNotifyChanger();
+            this.DataContext = CheckBoxVM;
         }
 
         // 추가 버튼 클릭 시
@@ -124,27 +119,60 @@ namespace BitmapCheckerTest
         {
             IsModified = false;
 
+            if (!CheckBoxVM.CheckRectangle())
+            {
+                return;
+            }
+
+            // BackUp TermID (GrantTermID) 설정
+            if (BackUpCombobox.SelectedItem == null)
+            {
+                return;
+            }
+
             var strTermID = IDCombobox.SelectedItem.ToString();
 
             TermID = uint.Parse(strTermID);
 
+            // 강제로 Checkbox UI를 ViewModel에 할당 
             CheckBoxVM.IsCheck = this.CheckedSetter();
             CheckBoxVM.IsEnable = this.EnabledSetter();
 
-            // Selection 전 ID에 Value 저장
-            // 키가 있을 경우
-            if (TermIDRBCheckDic.ContainsKey(TermID))
+            uint selectedGrantTermID = uint.Parse(BackUpCombobox.SelectedItem.ToString());
+            Dictionary<uint, RBChecker> tmpIdRBCheckerDic = new Dictionary<uint, RBChecker>();
+            if (GrantTermIDRBDic.ContainsKey(selectedGrantTermID))
             {
-                TermIDRBCheckDic[TermID] = (RBChecker)CheckBoxVM.Clone();
+                if (GrantTermIDRBDic[selectedGrantTermID].ContainsKey(TermID))
+                {
+                    GrantTermIDRBDic[selectedGrantTermID][TermID] = (RBChecker)CheckBoxVM.Clone();
+                }
+                else
+                {
+                    GrantTermIDRBDic[selectedGrantTermID].Add(TermID, (RBChecker)CheckBoxVM.Clone());
+                }
             }
 
-            // 키가 없을 경우 - 키를 생성하여 새 값을 넣어주기
             else
             {
-                TermIDRBCheckDic.Add(TermID, (RBChecker)CheckBoxVM.Clone());
+                tmpIdRBCheckerDic.Add(TermID, (RBChecker)CheckBoxVM.Clone());
+                GrantTermIDRBDic.Add(selectedGrantTermID, tmpIdRBCheckerDic);
             }
 
-            this.DataContext = TermIDRBCheckDic[TermID];
+            Dispatcher.BeginInvoke(new Action(() => 
+            {
+                BitmapTextBox.Text = CheckBoxVM.RBBinaryString;
+            }));
+
+            this.DataContext = CheckBoxVM;
+        }
+
+        // UI Thread 활용 테스트함수 (19. 6. 27)
+        public void DispatcherTestMothod()
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.SystemIdle, new Action(() => { }));
+            DispatcherFrame frame = new DispatcherFrame();
+            this.Dispatcher.BeginInvoke(new Action(() => { frame.Continue = false; }));
+            Dispatcher.PushFrame(frame);
         }
 
         // UI에서 데이터 변경 최종 설정 시 Data쪽에 수정하기
@@ -432,6 +460,143 @@ namespace BitmapCheckerTest
             else { IsEnable[15] = false; }
             return IsEnable;
         }
+
+        public void RBReset()
+        {
+            this.CheckBoxVM.ClearAll();
+            this.AllEnableAndUncheck();
+        }
+
+        // 초기화 버튼 클릭 이벤트
+        private void ResteButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.RBReset();
+        }
+
+        // UI 상에 직접 접근하여 모든 Checkbox 초기화
+        private void AllEnableAndUncheck()
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                RBCheckBox1.IsChecked = false;
+                RBCheckBox2.IsChecked = false;
+                RBCheckBox3.IsChecked = false;
+                RBCheckBox4.IsChecked = false;
+                RBCheckBox5.IsChecked = false;
+                RBCheckBox6.IsChecked = false;
+                RBCheckBox7.IsChecked = false;
+                RBCheckBox8.IsChecked = false;
+                RBCheckBox9.IsChecked = false;
+                RBCheckBox10.IsChecked = false;
+                RBCheckBox11.IsChecked = false;
+                RBCheckBox12.IsChecked = false;
+                RBCheckBox13.IsChecked = false;
+                RBCheckBox14.IsChecked = false;
+                RBCheckBox15.IsChecked = false;
+                RBCheckBox16.IsChecked = false;
+
+                RBCheckBox1.IsEnabled = true;
+                RBCheckBox2.IsEnabled = true;
+                RBCheckBox3.IsEnabled = true;
+                RBCheckBox4.IsEnabled = true;
+                RBCheckBox5.IsEnabled = true;
+                RBCheckBox6.IsEnabled = true;
+                RBCheckBox7.IsEnabled = true;
+                RBCheckBox8.IsEnabled = true;
+                RBCheckBox9.IsEnabled = true;
+                RBCheckBox10.IsEnabled = true;
+                RBCheckBox11.IsEnabled = true;
+                RBCheckBox12.IsEnabled = true;
+                RBCheckBox13.IsEnabled = true;
+                RBCheckBox14.IsEnabled = true;
+                RBCheckBox15.IsEnabled = true;
+                RBCheckBox16.IsEnabled = true;
+            }));
+        }
+
+        // Backup된 리스트 저장
+        private void SaveBackUpIDButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.SaveBackUp();
+        }
+
+        public void SaveBackUp()
+        {
+            if (BackUpCombobox.SelectedItem != null )
+            {
+                uint curBackupID = uint.Parse(BackUpCombobox.SelectedItem.ToString()); // DLTermID
+
+                Dictionary<uint, RBChecker> tmpTermIDRBCheckDic = new Dictionary<uint, RBChecker>();
+                // 가장 많이 체크 된 TermID에 대한 Dictionary를 curID가 키인 곳에 저장
+                for (int i = 0; i < TermIDList.Count; i++)
+                {
+                    uint curRBID = (uint)TermIDList[i];
+
+                    if (GrantTermIDRBDic.ContainsKey(curBackupID))
+                    {
+                    }
+                }
+
+                // 선택한 BackUp ID 키에 따른 Value로 Dictionary에 저장 (필요할 경우 깊은복사)
+                if (GrantTermIDRBDic.ContainsKey(curBackupID))
+                {
+                    GrantTermIDRBDic[curBackupID] = tmpTermIDRBCheckDic;
+                }
+
+                else
+                {
+                    GrantTermIDRBDic.Add(curBackupID, tmpTermIDRBCheckDic);
+                }
+            }
+        }
+
+        // BackUp ID Combobox 선택 변경 시  
+        private void BackUpCombobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (BackUpCombobox.SelectedItem != null)
+            {
+                uint curGrantID = uint.Parse(BackUpCombobox.SelectedItem.ToString());
+
+                CheckBoxVM.ClearAll();
+
+                if (this.GrantTermIDRBDic.ContainsKey(curGrantID))
+                {
+                    if (IDCombobox.SelectedItem == null)
+                    {
+                        return;
+                    }
+
+                   // uint rbID = uint.Parse(IDCombobox.SelectedItem.ToString());
+                    uint rbID = 1;
+
+                    if (GrantTermIDRBDic[curGrantID].ContainsKey(rbID))
+                    {
+                        CheckBoxVM = (RBChecker)GrantTermIDRBDic[curGrantID][rbID].Clone();
+                        this.prevGrantID = curGrantID;
+                    }
+
+                    // 이전 선택으로 되돌리기
+                    else
+                    {
+                        GrantTermIDRBDic[curGrantID].Add(rbID, new RBChecker());
+                        CheckBoxVM.ClearAll();
+                        CheckBoxVM.RbStateMsg = "해당 RB ID를 먼저 적용바람";
+                    }
+
+
+
+                    this.DataContext = CheckBoxVM;
+                    CheckBoxVM.ArrayNotifyChanger();
+                }
+
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    IDCombobox.SelectedIndex = 0;
+                }));
+
+                this.prevGrantID = curGrantID;
+            }
+        }
     }
 
     // CheckBox들에 할당 된 View Model
@@ -440,24 +605,30 @@ namespace BitmapCheckerTest
         const int CountOfCheckbox = 16;
 
         public ICommand RBCheckCommand { get; set; }
+        public ICommand ApplyButtonCommand { get; set; }
+
+        public int CommandParam { get; set; }
 
         // 2진 RB를 10진으로 변환한 값
         public int RBAssign { get; set; }
+        
+        // 체크 타당성을 알려주는 메세지
+        private string rbStateMsg;
+        public string RbStateMsg
+        {
+            get { return rbStateMsg; }
+            set { rbStateMsg = value; NotifyPropertyChanged(); }
+        }
 
         // 8자리 2진 값으로 표현되는 RB 데이터
         private string rbBinaryString;
-
         public string RBBinaryString
         {
             get { return rbBinaryString; }
             set { rbBinaryString = value; NotifyPropertyChanged(); }
         }
 
-        public bool[] PrevCheck { get; set; }
-
-        public bool[] CurCheck { get; set; }
-
-        // Checkbox의 IsChecked 속성에 바인딩 된 Check 배열 초기화
+        // Checkbox의 IsChecked 속성에 바인딩 된 Check 배열 (ViewModel)
         private bool[] isCheck = new bool[CountOfCheckbox];
         public bool[] IsCheck
         {
@@ -469,7 +640,7 @@ namespace BitmapCheckerTest
             }
         }
 
-        // CheckBox의 IsEnabled 속성에 바인딩 된 Check 배열 초기화
+        // CheckBox의 IsEnabled 속성에 바인딩 된 Check 배열 (ViewModel)
         private bool[] isEnable;
         public bool[] IsEnable
         {
@@ -481,11 +652,25 @@ namespace BitmapCheckerTest
             }
         }
 
-        public bool[] ConstEnable { get; set; }
+        // 체크박스 체크 명령을 주기 직전의 체크 여부(현재 체크 명령이 Checked 인 지 Unchecked 인 지 판별하기 위함)
+        public bool[] PrevCheck { get; set; }
 
-        public Dictionary<uint, bool[]> TermIDRBCheckDic= new Dictionary<uint, bool[]>();
+        // RB 할당후 확인을 누른 직후에 저장한 데이터(이미 다른 키에서 할당이 된 데이터들)
+        private bool[] alCheck;
+        public bool[] AlCheck
+        {
+            get { return alCheck; }
+            set { alCheck = value;  }
+        }
 
+        private bool[] alEnable;
+        public bool[] AlEnable
+        {
+            get { return alEnable; }
+            set { alEnable = value; }
+        }
 
+        public Dictionary<uint, bool[]> TermIDRBCheckDic = new Dictionary<uint, bool[]>();
 
         // 강제로 NotifyChange 호출
         public void ArrayNotifyChanger()
@@ -496,21 +681,22 @@ namespace BitmapCheckerTest
 
         public RBChecker()
         {
-            RBCheckCommand = new RelayCommand(ExecuteMethod, CanExecuteMethod);
+            // Command 생성
+            this.RBCheckCommand = new RelayCommand(ExecuteMethod, CanExecuteMethod);
+            this.ApplyButtonCommand = new RelayCommand(ExecuteApplyButton, CanExecuteMethod); 
+
             this.IsCheck = new bool[CountOfCheckbox];
             this.IsEnable = new bool[CountOfCheckbox];
             this.PrevCheck = new bool[CountOfCheckbox];
-            this.CurCheck = new bool[CountOfCheckbox];
-            this.ConstEnable = new bool[CountOfCheckbox];
+            this.AlCheck = new bool[CountOfCheckbox];
+            this.AlEnable = new bool[CountOfCheckbox];
 
             // 배열 내에 모든 인자 true로 초기화
             this.IsEnable = Enumerable.Repeat(true, CountOfCheckbox).ToArray();
-            this.ConstEnable = Enumerable.Repeat(true, CountOfCheckbox).ToArray();
-
-            this.ArrayNotifyChanger();
+            this.AlEnable = Enumerable.Repeat(true, CountOfCheckbox).ToArray();
         }
 
-        // ICloneable Function 복사생성자
+        // ICloneable Function 복사생성자 함수
         public object Clone()
         {
             RBChecker newCopyRB = new RBChecker();
@@ -520,12 +706,34 @@ namespace BitmapCheckerTest
             for (int i = 0; i < CountOfCheckbox; i++)
             {
                 newCopyRB.IsCheck[i] = this.IsCheck[i];
-                newCopyRB.PrevCheck[i] = this.PrevCheck[i];
                 newCopyRB.IsEnable[i] = this.IsEnable[i];
-                newCopyRB.CurCheck[i] = this.CurCheck[i];
-                newCopyRB.ConstEnable[i] = this.ConstEnable[i];
-            }
 
+                newCopyRB.PrevCheck[i] = this.PrevCheck[i];
+
+                newCopyRB.AlEnable[i] = this.AlEnable[i];
+                newCopyRB.AlCheck[i] = this.AlCheck[i];
+            }
+            return newCopyRB;
+        }
+
+        // 객체를 복사하되, AlEnable 및 AlCheck는 이전 데이터 손실이 우려되기 때문에 안전한 복사를 위해 파라미터를 두었음
+        public object Clone(bool[] alEnable, bool[] alCheck)
+        {
+            RBChecker newCopyRB = new RBChecker();
+            newCopyRB.RBAssign = this.RBAssign;
+            newCopyRB.RBBinaryString = this.RBBinaryString;
+
+            for (int i = 0; i < CountOfCheckbox; i++)
+            {
+                newCopyRB.IsCheck[i] = this.IsCheck[i];
+                newCopyRB.IsEnable[i] = this.IsEnable[i];
+
+                newCopyRB.PrevCheck[i] = this.PrevCheck[i];
+
+                // 파라미터로 부터 들어온 데이터 복사
+                newCopyRB.AlEnable[i] = alEnable[i];
+                newCopyRB.AlCheck[i] = alCheck[i];
+            }
             return newCopyRB;
         }
 
@@ -537,16 +745,34 @@ namespace BitmapCheckerTest
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-
+        
         public void ClearAll()
         {
             for (int i = 0; i < CountOfCheckbox; i++)
             {
+                // Check는 false로, Enable는 true로 모두 초기화
                 this.IsCheck[i] = false;
                 this.IsEnable[i] = true;
                 this.PrevCheck[i] = false;
-                this.CurCheck[i] = false;
-                this.ConstEnable[i] = true;
+                this.AlCheck[i] = false;
+                this.AlEnable[i] = false;
+            }
+
+            this.RBAssign = 0;
+            this.RBBinaryString = "00000000";
+            this.RbStateMsg = "초기화 완료";
+
+            this.ArrayNotifyChanger();
+        }
+
+        public void ClearCurrentState()
+        {
+            for (int i = 0; i < CountOfCheckbox; i++)
+            {
+                // Check는 false로, Enable는 true로 모두 초기화
+                this.IsCheck[i] = false;
+                this.IsEnable[i] = true;
+                this.PrevCheck[i] = false;
             }
 
             this.TermIDRBCheckDic.Clear();
@@ -561,6 +787,7 @@ namespace BitmapCheckerTest
             return true;
         }
 
+        // RB할당 체크박스를 하나씩 체크할 때 마다 발동되는 커맨드 함수
         private void ExecuteMethod(object parameter)
         {
            // 방금 체크된 것 확인 및 모든 체크박스 체크 해제 되어있는 지 확인
@@ -571,21 +798,21 @@ namespace BitmapCheckerTest
             for (int i = 0; i < CountOfCheckbox; i++)
             {
                 // 체크가 바뀐 데이터 확인
-                if (this.PrevCheck[i] != this.isCheck[i])
+                if (this.PrevCheck[i] != this.IsCheck[i])
                 {
                     index = i;
-                    check = this.isCheck[i];
+                    check = this.IsCheck[i];
                 }
 
                 // 현재 체크 갯수 확인
-                if (this.isCheck[i] == false)
+                if (this.IsCheck[i] == false)
                 {
                     totalUnCheck++;
                 }
             }
 
             // 이전에 체크 된 데이터 최신화 (prevCheck에 데이터 재설정)
-            for (int i = 0; i < CountOfCheckbox; i++) { if (this.PrevCheck[i] != this.isCheck[i]) this.PrevCheck[i] = this.isCheck[i]; }
+            for (int i = 0; i < CountOfCheckbox; i++) { if (this.PrevCheck[i] != this.IsCheck[i]) this.PrevCheck[i] = this.IsCheck[i]; }
 
             // 모두 체크 해제되어 있을 경우 모든 체크박스 활성화
             if (totalUnCheck == CountOfCheckbox)
@@ -599,6 +826,13 @@ namespace BitmapCheckerTest
             // 현재 유저가 체크/체크해제를 하였음을 판별
             this.IsCheck[index] = check;
 
+            // 체크한 위치로 부터 상, 하, 좌, 우 Index
+            int topIndex = index - 4; // 체크 한 위치의 상측 위치
+            int leftIndex = index - 1;  // 체크 한 위치의 좌측 위치
+            int rightIndex = index + 1; // 체크 한 위치의 우측 위치
+            int bottomIndex = index + 4; // 체크 한 위치의 하측 위치
+
+            // 현재 명령 : Checked
             if (check)
             {
                 // 하나 체크될 경우 최초 체크되었다고 가정하여 모든 체크박스 비활성화 해놓고 시작하기
@@ -608,112 +842,339 @@ namespace BitmapCheckerTest
                 }
 
                 this.IsEnable[index] = true;
-
-                if (index - 4 >= 0) // 상
+                
+                if (topIndex >= 0) // 상
                 {
-                    this.IsEnable[index - 4] = true;
-                }
-
-                if (index - 1 >= 0) // 좌
-                {
-                    // [4] - > [3] , [8] -> [7] , [12] -> [11] : x
-                    if (index != 4 && index != 8 && index != 12)
+                    // 이전에 이미 체크 되어있을 경우에 계속 여전히 Disable 상태로 남겨두기
+                    if (this.AlCheck[topIndex])
                     {
-                        this.IsEnable[index - 1] = true;
+                        this.IsEnable[topIndex] = false;
+                    }
+                    else
+                    {
+                        this.IsEnable[topIndex] = true;
                     }
                 }
 
-                if (index + 1 < CountOfCheckbox) // 우
+                if (leftIndex >= 0) // 좌
                 {
-                    // [3] - > [4] , [7] -> [8] , [11] -> [12] : x
-                    if (index != 3 && index != 7 && index != 11)
+                    // 왼쪽 최 외각일 경우 이전상태 유지
+                    if (CheckLeftEmpty(index)) { }
+
+                    else
                     {
-                        this.IsEnable[index + 1] = true;
+                        // 이전에 이미 체크 되어있을 경우에 계속 여전히 Disable 상태로 남겨두기
+                        if (this.AlCheck[leftIndex])
+                        {
+                            this.IsEnable[leftIndex] = false;
+                        }
+                        else
+                        {
+                            this.IsEnable[leftIndex] = true;
+                        }
                     }
                 }
 
-                if (index + 4 < CountOfCheckbox) // 하
+                if (rightIndex < CountOfCheckbox) // 우
                 {
-                    this.IsEnable[index + 4] = true;
+                    // 오른쪽 최 외각일 경우 이전상태 유지
+                    if (CheckRightEmpty(index)) { }  
+                    
+                    else
+                    {
+                        // 이전에 이미 체크 되어있을 경우에 계속 여전히 Disable 상태로 남겨두기
+                        if (this.AlCheck[rightIndex])
+                        {
+                            this.IsEnable[rightIndex] = false;
+                        }
+                        else
+                        {
+                            this.IsEnable[rightIndex] = true;
+                        }
+                    }
                 }
+
+                if (bottomIndex < CountOfCheckbox) // 하
+                {
+                    // 이전에 이미 체크 되어있을 경우에 계속 여전히 Disable 상태로 남겨두기
+                    if (this.AlCheck[bottomIndex])
+                    {
+                        this.IsEnable[bottomIndex] = false;
+                    }
+                    else
+                    {
+                        this.IsEnable[bottomIndex] = true;
+                    }
+                }
+                this.RbStateMsg = index.ToString() + "번 노드 체크";
             } // end if (check)
 
+            // 현재 명령 : UnChecked
             else
             {
-                // 체크 해제 하는 칸에 인접한 곳 모두 Enable False로 만들기
+                // 체크한 곳이 상-하 및 좌-우 사이 (중간 항목)일 경우 체크명령 원복
+                if ((topIndex >= 0) && (bottomIndex < CountOfCheckbox))
+                {
+                    if (this.IsCheck[topIndex] && this.IsCheck[bottomIndex])
+                    {
+                        if (index == 5 || index == 6 || index == 9 || index == 10)
+                        {
+                            this.IsCheck[index] = true;
+                            this.PrevCheck[index] = true;
+                            RbStateMsg = "최 외곽 항목을 먼저 해제해 주세요";
+                            this.ArrayNotifyChanger();
+                            return;
+                        }
+                    }
+                }
+
+                if ((leftIndex >= 0) && (rightIndex < CountOfCheckbox))
+                {
+                    if (this.IsCheck[leftIndex] && this.IsCheck[rightIndex])
+                    {
+                        if (index == 5 || index == 6 || index == 9 || index == 10)
+                        {
+                            this.IsCheck[index] = true;
+                            this.PrevCheck[index] = true;
+                            RbStateMsg = "최 외곽 항목을 먼저 해제해 주세요";
+                            this.ArrayNotifyChanger();
+                            return;
+                        }
+                    }
+                }
+
+                // 체크 해제 하는 칸에 인접한 곳(상, 하, 좌, 우) IsEnable 여부 판별하기
                 // 인접한 칸에서 또 인접한 부분에 체킹이 되어 있는 지 여부(Enable True로 설정하기 위해서)
-                if (index - 4 >= 0) // 상
+                if (topIndex >= 0) // 상
                 {
-                    if (!this.isCheck[index - 4]) // 비활성화 시킬 자리에 체크가 되어 있으면
-                    {
-                        this.IsEnable[index - 4] = false;
-                    }
-
-                    if (!this.IsCheck[index - 4])
+                    this.IsEnable[topIndex] = false;
+                    // 이미 Enable한 지역만 
+                    if (!this.AlCheck[topIndex]) 
                     { 
-                    }
-                }
+                        // Disable 하려는 체크박스가 이미 체크 되어 있는 경우 Enable
+                        if (this.IsCheck[topIndex])
+                        {
+                            this.IsEnable[topIndex] = true;
+                        }
 
-                if (index - 1 >= 0) // 좌
-                {
-                    if (!this.isCheck[index - 1])
+                        // 인접 Checkbox의 Checked 여부를 확인하기(상, 좌, 우 Checked 확인하기)
+                        // 확인해서 Checked 가능한 곳이라 판단되면 Enable
+                        if (topIndex - 4 >= 0) // 상-상
+                        {
+                            if (this.IsCheck[topIndex - 4])
+                            {
+                                this.IsEnable[topIndex] = true; 
+                            }
+                        }
+
+                        if (topIndex - 1 >= 0) // 상-좌
+                        {
+                            if (CheckLeftEmpty(topIndex)) { }
+
+                            else
+                            {
+                                if (this.IsCheck[topIndex - 1])
+                                {
+                                    this.IsEnable[topIndex] = true;
+                                }
+                            }
+                        }
+
+                        if (topIndex + 1 < CountOfCheckbox) // 상-우
+                        {
+                            if (CheckRightEmpty(topIndex)) { }
+
+                            else
+                            {
+                                if (this.IsCheck[topIndex + 1])
+                                {
+                                    this.IsEnable[topIndex] = true;
+                                }
+                            }
+                        }
+                    } // End if (this.AlEnable[topIndex]) 
+
+                    // 계속 Enable하지만, 체크된 상태로 동떨어져서 Disable 되지 않는 체크박스 Check 해제시키기
+                    if (!this.AlCheck[topIndex] && this.IsCheck[topIndex] && !this.IsEnable[topIndex])
                     {
-                        this.IsEnable[index - 1] = false;
+                        this.IsCheck[topIndex] = false;
+                        this.PrevCheck[topIndex] = false;
                     }
-                }
+                } // End if (topIndex >= 0)
 
-                if (index + 1 < CountOfCheckbox) // 우
+                if (leftIndex >= 0) // 좌
                 {
-                    if (!this.IsCheck[index + 1])
-                    {
-                        this.IsEnable[index + 1] = false;
-                    }
-                }
+                    // 최 왼쪽 체크박스의 경우는 예외처리 (좌측이 없기 때문에)
+                    if (CheckLeftEmpty(index)) { } // [4], [8], [12]
 
-                if (index + 4 < CountOfCheckbox)  // 하
+                    // 최 왼쪽 체크박스가 아닌 경우에만 판단
+                    else
+                    {
+                        this.IsEnable[leftIndex] = false;
+                        if (!this.AlCheck[leftIndex])
+                        {
+                            // Disable 하려는 체크박스가 이미 체크 되어 있는 경우 Enable
+                            if (this.IsCheck[leftIndex])
+                            {
+                                this.IsEnable[leftIndex] = true;
+                            }
+
+                            // 인접 Checkbox의 Checked 여부를 확인하기(상, 좌, 하 Checked 확인하기)
+                            // 확인해서 Checked 가능한 곳이라 판단되면 Enable
+                            if (leftIndex - 4 >= 0) // 좌-상
+                            {
+                                if (this.IsCheck[leftIndex - 4])
+                                {
+                                    this.IsEnable[leftIndex] = true;
+                                }
+                            }
+
+                            if (leftIndex - 1 >= 0) // 좌-좌
+                            {
+                                if (CheckLeftEmpty(leftIndex)) { } // [4], [8], [12]
+
+                                else
+                                {
+                                    if (this.IsCheck[leftIndex - 1])
+                                    {
+                                        this.IsEnable[leftIndex] = true;
+                                    }
+                                }
+                            }
+
+                            if (leftIndex + 4 < CountOfCheckbox) // 좌-하
+                            {
+                                if (this.IsCheck[leftIndex + 4])
+                                {
+                                    this.IsEnable[leftIndex] = true;
+                                }
+                            }
+                        } // End if (this.AlEnable[leftIndex])
+                    } // End else - if (CheckLeftEmpty(index))
+
+                    // 계속 Enable하지만, 체크된 상태로 동떨어져서 Disable 되지 않는 체크박스 Check 해제시키기
+                    if (!this.AlCheck[leftIndex] && this.IsCheck[leftIndex] && !this.IsEnable[leftIndex])
+                    {
+                        this.IsCheck[leftIndex] = false;
+                        this.PrevCheck[leftIndex] = false;
+                    }
+                } // End if (leftIndex >= 0)
+
+                if (rightIndex < CountOfCheckbox) // 우
                 {
-                    if (!this.IsCheck[index + 4])
+                    // 최 오른쪽 체크박스의 경우는 예외처리 (우측이 없기 때문에)
+                    if (CheckRightEmpty(index)) { } // [3], [7], [11]
+
+                    else
                     {
-                        this.IsEnable[index + 4] = false;
+                        this.IsEnable[rightIndex] = false;
+                        if (!this.AlCheck[rightIndex])
+                        {
+                            // Disable 하려는 체크박스가 이미 체크 되어 있는 경우 Enable
+                            if (this.IsCheck[rightIndex])
+                            {
+                                this.IsEnable[rightIndex] = true;
+                            }
+
+                            // 인접 Checkbox의 Checked 여부를 확인하기(상, 우, 하 Checked 확인하기)
+                            // 확인해서 Checked 가능한 곳이라 판단되면 Enable
+                            if (rightIndex - 4 >= 0) // 우-상
+                            {
+                                if (this.IsCheck[rightIndex - 4])
+                                {
+                                    this.IsEnable[rightIndex] = true;
+                                }
+                            }
+
+                            if (rightIndex + 1 < CountOfCheckbox) // 우-우
+                            {
+                                if (CheckRightEmpty(rightIndex)) { } // [3], [7], [11]
+
+                                else
+                                {
+                                    if (this.IsCheck[rightIndex + 1])
+                                    {
+                                        this.IsEnable[rightIndex] = true;
+                                    }
+                                }
+                            }
+
+                            if (rightIndex + 4 < CountOfCheckbox) // 우-하
+                            {
+                                if (this.IsCheck[rightIndex + 4])
+                                {
+                                    this.IsEnable[rightIndex] = true;
+                                }
+                            }
+                        } // End if (this.AlEnable[rightIndex])
+                    } // End else - if (CheckRightEmpty(index))
+
+                    // 계속 Enable하지만, 체크된 상태로 동떨어져서 Disable 되지 않는 체크박스 Check 해제시키기
+                    if (!this.AlCheck[rightIndex] && this.IsCheck[rightIndex] && !this.IsEnable[rightIndex])
+                    {
+                        this.IsCheck[rightIndex] = false;
+                        this.PrevCheck[rightIndex] = false;
                     }
-                }
 
-                this.isEnable[index] = true;
+                } // End if (rightIndex < CountOfCheckbox) 
 
+                if (bottomIndex < CountOfCheckbox) // 하
+                {
+                    this.IsEnable[bottomIndex] = false;
+                    if (!this.AlCheck[bottomIndex])
+                    {
+                        // Disable 하려는 체크박스가 이미 체크 되어 있는 경우 Enable
+                        if (this.IsCheck[bottomIndex])
+                        {
+                            this.IsEnable[bottomIndex] = true;
+                        }
 
-            
+                        // 인접 Checkbox의 Checked 여부를 확인하기(좌, 우, 하 Checked 확인하기)
+                        // 확인해서 Checked 가능한 곳이라 판단되면 Enable
+                        if (bottomIndex - 1 >= 0) // 하-좌
+                        {
+                            if (CheckLeftEmpty(bottomIndex)) { }
+
+                            else
+                            {
+                                if (this.IsCheck[bottomIndex - 1])
+                                {
+                                    this.IsEnable[bottomIndex] = true;
+                                }
+                            }
+                        }
+
+                        if (bottomIndex + 1 < CountOfCheckbox) // 하-우
+                        {
+                            if (CheckRightEmpty(bottomIndex)) { }
+
+                            else
+                            {
+                                if (this.IsCheck[bottomIndex + 1])
+                                {
+                                    this.IsEnable[bottomIndex] = true;
+                                }
+                            }
+                        }
+
+                        if (bottomIndex + 4 < CountOfCheckbox) // 하-하
+                        {
+                            if (this.IsCheck[bottomIndex + 4])
+                            {
+                                this.IsEnable[bottomIndex] = true;
+                            }
+                        }
+                    } // End (this.AlEnable[bottomIndex])
+
+                    // 계속 Enable하지만, 체크된 상태로 동떨어져서 Disable 되지 않는 체크박스 Check 해제시키기
+                    if (!this.AlCheck[bottomIndex] && this.IsCheck[bottomIndex] && !this.IsEnable[bottomIndex])
+                    {
+                        this.IsCheck[bottomIndex] = false;
+                        this.PrevCheck[bottomIndex] = false;
+                    }
+                } // End if (bottomIndex >= 0)
+                this.RbStateMsg = index.ToString() + "번 노드 체크 해제";
             } // end else (check)
-
-            // 양 끝 모서리만 활성화 되고 주변부분 비활성화 되지 않도록 만들기
-            if (IsEnable[0] && !IsEnable[1] && !IsEnable[4]) // 좌상단
-            {
-                IsEnable[0] = false;
-            }
-
-            if (IsEnable[3] && !IsEnable[2] && !IsEnable[7]) // 우상단
-            {
-                IsEnable[3] = false;
-            }
-
-            if (IsEnable[12] && !IsEnable[8] && !IsEnable[13]) // 좌하단
-            {
-                IsEnable[12] = false;
-            }
-
-            if (IsEnable[15] && !IsEnable[14] && !IsEnable[11]) // 우하단
-            {
-                IsEnable[15] = false;
-            }
-
-
-            // 최종적으로 PrevEnable이 false 인 곳들도 모두 Enable false로 설정
-            for (int i = 0; i < CountOfCheckbox; i++ )
-            {
-                if (!this.ConstEnable[i])
-                {
-                    this.IsEnable[i] = false;
-                }
-            }
 
             this.ArrayNotifyChanger();
 
@@ -724,12 +1185,140 @@ namespace BitmapCheckerTest
             if (binary.IsMatch(RBBinaryString))
             {
                 this.RBAssign = Convert.ToInt32(RBBinaryString, 2);
-
             }
+
             else
             {
                 this.RBAssign = 0;
             }
+        }
+
+        // 버튼 클릭 시 AICheck 및 AlEnable 변수에 데이터 할당하는 커맨드 함수
+        private void ExecuteApplyButton(object parameter)
+        {
+            if (this.CheckRectangle() && (parameter != null))
+            {
+                // Already Check 및 Enable에 백업
+                for (int i = 0; i < this.IsCheck.Length; i++)
+                {
+                    this.AlCheck[i] = this.IsCheck[i];
+                    this.AlEnable[i] = this.IsEnable[i];
+
+                    // Enable이 True인 곳에 현재 Check된 곳이 True가 되면 false 로 바꿔쳐주기
+                    if (this.AlEnable[i])
+                    {
+                        this.AlEnable[i] = !this.IsCheck[i];
+                    }
+
+                    if (this.IsCheck[i])
+                    {
+                        this.IsEnable[i] = false;
+                    }
+                }
+                ArrayNotifyChanger();
+                this.RbStateMsg = "적용 완료";
+            } // end if (parameter != null)
+        }
+
+        // 체크박스 더미의 오른쪽 최 외곽이 비어있음을 체크함 (우측 Check를 확인함)
+        private bool CheckRightEmpty(int index)
+        {
+            if ((index + 1) % 4 == 0)  // [3], [7], [11]
+            {
+                return true;
+            }
+
+            else
+            {
+                return false;
+            }
+        }
+
+        // 체크박스 더미의 왼쪽 최 외곽이 비어있음을 체크함 (좌측 Check를 확인함)
+        private bool CheckLeftEmpty(int index)
+        {
+            if (index % 4 == 0) // [4], [8], [12]
+            {
+                return true;
+            }
+
+            else
+            {
+                return false;
+            }
+        }
+
+        // 현재 체크 된 영역이 사각형인지 판별함
+        public bool CheckRectangle()
+        {
+            // 체크박스로 이루어진 한 라인의 길이
+            const int LineLength = 4;
+
+            // width , height 길이 각각 4씩, 모든 요소 0으로 초기화
+            int[] rowCheck = new int[CountOfCheckbox / LineLength]; // <->
+            int[] colCheck = new int[CountOfCheckbox / LineLength];  // 
+
+            rowCheck = Enumerable.Repeat(0, CountOfCheckbox / LineLength).ToArray();
+            colCheck = Enumerable.Repeat(0, CountOfCheckbox / LineLength).ToArray();
+
+            for (int i = 0; i < CountOfCheckbox; i++)
+            {
+                int indexOfRow = i / (CountOfCheckbox / LineLength); // 0/4, 1/4, ... 16/4 - 분모고정
+
+                // row check
+                if (this.IsCheck[i])
+                {
+                    // 한 줄에 체크된 갯수를 카운팅
+                    rowCheck[indexOfRow]++;
+                }
+            }
+
+            for (int indexOfCol = 0; indexOfCol < CountOfCheckbox / LineLength; indexOfCol++)
+            {
+                for (int i = 0; i < CountOfCheckbox / LineLength; i++)
+                {
+                    // col check
+                    if (this.IsCheck[4 * i + indexOfCol])
+                    {
+                        // 한 열에 체크 된 갯수를 카운팅
+                        colCheck[indexOfCol]++;
+                    }
+                }
+            }
+
+            for (int i = 0; i < CountOfCheckbox / LineLength; i++)
+            {
+                for ( int j = i + 1 ; j < CountOfCheckbox / LineLength ; j++)
+                {
+                    // 0이 아닌 행에 대해서
+                    if (rowCheck[i] != 0 && rowCheck[j] != 0)
+                    {
+                        if (rowCheck[j] != rowCheck[i])
+                        {
+                            RbStateMsg = "사각형이 아님, 행 체크 확인바람";
+                            return false;
+                        }
+                    }
+
+                    // 0이 아닌 열에 대해서
+                    if (colCheck[i] != 0 && colCheck[j] != 0)
+                    {
+                        if (colCheck[j] != colCheck[j])
+                        {
+                            RbStateMsg = "사각형이 아님, 열 체크 확인바람";
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        // 최대 체크 갯수 확인하기
+        public void CheckMax()
+        {
+
         }
 
         // 자원할당 설정 완료 시 이전의 TermID 에서 설정한 Check 모두 설정한 채로 Disable
@@ -740,11 +1329,6 @@ namespace BitmapCheckerTest
             bool[] isCheckedArray = new bool[16];
             for (int i = 0; i < isCheckedArray.Length; i++ )
             {
-                if ( this.IsCheck[i])
-                {
-                    this.ConstEnable[i] = false;
-                }
-
                 isCheckedArray[i] = this.IsCheck[i];
             }
 
@@ -760,11 +1344,6 @@ namespace BitmapCheckerTest
 
             for (int i = 0; i < CountOfCheckbox; i++)
             {
-                if (this.IsCheck[i] && ! this.IsEnable[i])
-                {
-                    this.CurCheck[i] = true;
-                }
-
                 if (this.IsCheck[i])
                 {
                     // Enable False로 설정

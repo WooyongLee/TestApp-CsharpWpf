@@ -82,12 +82,31 @@
             </StackPanel>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Margin="5" Grid.Row="1">
-            <ComboBox x:Name="IDCombobox" Margin="5" Width="100" Height="22" HorizontalAlignment="Left" VerticalAlignment="Top" 
-                      SelectionChanged="IDCombobox_SelectionChanged">
-            </ComboBox>
-            
-            <Button x:Name="ApplyButton" Margin="5" Width="60" Height="22" Content="적용" HorizontalAlignment="Left" VerticalAlignment="Top" Click="ApplyButton_Click"></Button>
+        <StackPanel Orientation="Vertical" Margin="5" Grid.Row="1">
+            <StackPanel Orientation="Horizontal">
+                <ComboBox x:Name="IDCombobox" Margin="5" Width="100" Height="22" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                          SelectionChanged="IDCombobox_SelectionChanged" SelectedIndex="0"> 
+                </ComboBox>
+                <Button x:Name="ApplyButton" Margin="5" Width="60" Height="22" Content="적용" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                        Click="ApplyButton_Click"
+                        Command="{Binding ApplyButtonCommand, Mode=TwoWay}"
+                        CommandParameter="{Binding CommandParam}">
+                </Button>
+                <Button x:Name="ResteButton" Margin="5" Width="80" Content="초기화" Click="ResteButton_Click"></Button>
+                <TextBlock  Margin="7"  Text="  Bitmap :"> </TextBlock>
+                <TextBox x:Name="BitmapTextBox" Margin="2,  5" Width="100"> </TextBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock HorizontalAlignment="Left" Margin="5" Text="상태 :"></TextBlock>
+                <TextBox x:Name="NoticeTextBox" Width="250" Margin="5" Text="{Binding RbStateMsg}" HorizontalAlignment="Left"></TextBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock HorizontalAlignment="Left" Margin="8" Text="백업 ID :"></TextBlock>
+                <ComboBox x:Name="BackUpCombobox" Margin="5" Width="100" Height="22" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                          SelectedIndex="0" SelectionChanged="BackUpCombobox_SelectionChanged">
+                </ComboBox>
+                <Button x:Name="SaveBackUpIDButton" Margin="10, 5" Width="80" Content="저장하기" Click="SaveBackUpIDButton_Click" ></Button>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Window>

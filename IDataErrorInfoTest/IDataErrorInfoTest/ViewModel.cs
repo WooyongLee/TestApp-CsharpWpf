@@ -44,7 +44,7 @@ namespace IDataErrorInfoTest
                 isValidateLon = value;
 
                 // Lon이 범위 밖
-                if (this.Lon > 90 || this.Lon < -90)
+                if (this.Lon > 180 || this.Lon < -180)
                 {
                     isValidateLon = false;
                 }
