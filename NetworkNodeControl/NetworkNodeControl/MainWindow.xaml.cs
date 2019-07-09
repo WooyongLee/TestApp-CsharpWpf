@@ -79,7 +79,7 @@ namespace NetworkNodeControl
                 {
                     // Key :: GrantTermID (SourceID), Value :: DL_TermID (ConnectedTermID) // 19. 5. 17 변경 (대부분 삭제)
                     AddConnection(pair.Key, pair.Value[i], IsNewKey);
-                    IsNewKey = false;
+                    // IsNewKey = false;
                 }
 
                 iterIndex++;
@@ -92,6 +92,7 @@ namespace NetworkNodeControl
 
         // 임시변수
         int posIndex = 0;
+        int CenterPosCount = 0;
 
         // canvas 내에 노드들의 위치를 설정
         public void SetNodePoisitionDic(int nodeLevel, int termID, bool Is1stNode = false)
@@ -99,23 +100,32 @@ namespace NetworkNodeControl
             // 첫 노드는 center에 배치
             if (Is1stNode)
             {
-                NodePositionDic.Add(termID, NodeConstValue.CenterPos);
+                NodePositionDic.Add(termID, NodeConstValue.CalcCenterPos(NodeConstValue.CenterPos, CenterPosCount));
+                CenterPosCount += 45; // 추후 랜덤하게 변경
             }
 
             else
             {
                 // 같은 레벨에서는 여섯방향 공간을 돌면서 노드를 배치하기
-                switch (posIndex % 6)
+                if (termID < 1) termID = 1;
+                nodeLevel = (termID - 1) / 6;
+                switch (termID % 12)
                 {
-                    case 1: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.LeftTop)); break;
-                    case 2: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.RightTop)); break;
-                    case 3: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.Right)); break;
-                    case 4: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.RightBottom)); break;
-                    case 5: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.LeftBottom)); break;
-                    case 0: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.Left)); break;
+                    case 1: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.ThreeToFive)); break;
+                    case 2: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.FiveToSeven)); break;
+                    case 3: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.SevenToNine)); break;
+                    case 4: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.NineToEleven)); break;
+                    case 5: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.EleventToOne)); break;
+                    case 6: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.OneToThree)); break;
+
+                    case 7: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.TenToTwelve)); break;
+                    case 8: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.TwelveToTwo)); break;
+                    case 9: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.TwoToFour)); break;
+                    case 10: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.FourToSix)); break;
+                    case 11: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.SixToEight)); break;
+                    case 0: NodePositionDic.Add(termID, NodeConstValue.SetNodePos(nodeLevel, ENodeDirection.EightToTen)); break;
                 }
             }
-            posIndex++;
         }
 
         // 노드 좌표 Dictionary에 모든 좌표들을 고정적으로 채우는 함수
@@ -635,9 +645,11 @@ namespace NetworkNodeControl
         // 상황을 가정하기
         private void Situation1Btn_Click(object sender, RoutedEventArgs e)
         {
+            CenterPosCount = 0;
+
             // 단일 Size의 RAFrame이 들어올 경우 가정
             List<int> ConnectedTermIDList = new List<int>();
-            for ( int i = 0 ; i < 5 ; i++)
+            for ( int i = 0 ; i < 15 ; i++)
             {
                 int termID = i + 1;
                 ConnectedTermIDList.Add(termID);
@@ -651,16 +663,18 @@ namespace NetworkNodeControl
 
         private void Situation2Btn_Click(object sender, RoutedEventArgs e)
         {
+            CenterPosCount = 0;
+
             // Size = 2의 RAFrame이 들어올 경우를 가정
             List<int> ConnectedTermIDList = new List<int>();
             for (int i = 0; i < 3; i++)
             {
-                int termID = i + 2;
+                int termID = i + 1;
                 ConnectedTermIDList.Add(termID);
             }
 
-            // UL_Grant TermID에 1번 , Connected TermID에 2, 3, 4번까지 대입
-            RAFrameUnitDic.Add(1, ConnectedTermIDList);
+            // UL_Grant TermID에 0번 , Connected TermID에 1, 2, 3번까지 대입
+            RAFrameUnitDic.Add(0, ConnectedTermIDList);
 
             List<int> ConnectedTermIDList2 = new List<int>();
             for (int i = 0; i < 2; i++)
@@ -669,11 +683,10 @@ namespace NetworkNodeControl
                 ConnectedTermIDList2.Add(termID);
             }
 
-            // UL_Grant TermID에 2번 , Connected TermID에 5, 6번까지 대입
-            RAFrameUnitDic.Add(2, ConnectedTermIDList2);
+            // UL_Grant TermID에 4번 , Connected TermID에 5, 6번까지 대입
+            RAFrameUnitDic.Add(4, ConnectedTermIDList2);
 
             // 2번 노드가 5, 6에 맞물리게 됨
-
             DrawDiagramFromRAData();
         }
 

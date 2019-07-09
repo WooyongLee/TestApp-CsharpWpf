@@ -33,8 +33,6 @@ namespace BitmapCheckerTest
         public Dictionary<uint, Dictionary<uint, RBChecker>> GrantTermIDRBDic = new Dictionary<uint, Dictionary<uint, RBChecker>>();
 
         // 네자리 숫자, 각 자리수 0 또는 1
-        public int RowValue = 0;
-        public int ColValue = 0;
 
         private bool IsInit = false;
         private uint TermID = 0;
@@ -465,6 +463,12 @@ namespace BitmapCheckerTest
         {
             this.CheckBoxVM.ClearAll();
             this.AllEnableAndUncheck();
+
+            uint selectedGrantID = uint.Parse(BackUpCombobox.SelectedItem.ToString());
+            if (GrantTermIDRBDic.ContainsKey(selectedGrantID))
+            {
+                GrantTermIDRBDic[selectedGrantID].Clear();
+            }
         }
 
         // 초기화 버튼 클릭 이벤트

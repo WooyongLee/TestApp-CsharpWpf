@@ -72,7 +72,7 @@
                         MouseMove="Canvas_MouseMove"
                         MouseUp="Canvas_MouseUp"
                         MouseDown="Canvas_MouseDown"
-                        HorizontalAlignment="Left" Height="280" Margin="5" VerticalAlignment="Top" Width="440"
+                        HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Width="440" Height="280"
                        >
                 <Canvas.RenderTransform>
                     <TransformGroup>
