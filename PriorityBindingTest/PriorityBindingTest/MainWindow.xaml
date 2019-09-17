@@ -1,0 +1,34 @@
+﻿<Window x:Class="PriorityBindingTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525"> 
+    <Grid>
+        <StackPanel>
+            <TextBlock Margin="2">
+                <TextBlock.Text>
+                    <PriorityBinding>
+                        <Binding Path="StringValue" />
+                        <Binding Path="NumericValue" />
+                    </PriorityBinding>
+                </TextBlock.Text>
+            </TextBlock>
+            <Slider Maximum="100" Margin="2" IsEnabled="False">
+                <Slider.Value>
+                    <PriorityBinding>
+                        <Binding Path="StringValue" Mode="OneTime" />
+                        <Binding Path="NumericValue" Mode="OneTime" />
+                    </PriorityBinding>
+                </Slider.Value>
+            </Slider>
+            <TextBlock Margin="2, 5, 0, 0">
+                <TextBlock.Text>
+                    <PriorityBinding FallbackValue="Please wait...">
+                        <Binding Path="Slow" IsAsync="True" />
+                        <Binding Path="Medium" IsAsync="True" />
+                        <Binding Path="Fast" IsAsync="True" />
+                    </PriorityBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        </StackPanel>
+    </Grid>
+</Window>
