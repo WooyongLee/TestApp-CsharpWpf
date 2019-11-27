@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -131,5 +132,34 @@ namespace LinqTest
 
         }
 
+        // 배열 관련 다양한 처리 (변환, 처리, 연결, 삭제)
+        public static void  EtcProcess()
+        {
+            // 변환
+            var words = new List<string> { "Microsoft", "Apple", "Google", "Oracle" };
+            var lowers = words.Select(name => name.ToLower()).ToArray(); // 소문자로 바꾸기
+
+            var numbers = new List<int> { 89, 29, 15, 48, 2 };
+            var strings = numbers.Select(n => n.ToString("0000")).ToArray(); // 수를 문자로 바꾸기
+
+            // 중복 제거
+            var numbers2 = new List<int> { 19, 17, 15, 24, 12, 25, 17, 19, 15 };
+            var results = numbers2.Distinct().ToList(); // 중복 제거한 형태뢔 List로 반환하기
+
+            // 컬렉션 오름차순 정렬
+            var sortedNumbers2 = numbers2.OrderBy(x => x);
+
+            // 내림차순 정렬
+            var sortedNumber2Desc = numbers.OrderByDescending(x => x);
+
+            string[] files1 = Directory.GetFiles(@"E\TestApp");
+            string[] files2 = Directory.GetFiles(@"E\Diablo");
+            var allFiles = files1.Concat(files2); // file1-file2 연결
+            allFiles.ToList().ForEach(Console.WriteLine); // 저장된 파일목록
+
+            // 리스트 삭제의 올바른 방법
+            var list = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            list.RemoveAll(x => x == 5);
+        }
     }
 }
