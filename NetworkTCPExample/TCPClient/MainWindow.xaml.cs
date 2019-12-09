@@ -99,7 +99,7 @@ namespace TCPClient
 
         public TCPclientManager()
         {
-
+            client = new TcpClient();
         }
 
         public void ClientStart()
@@ -141,8 +141,8 @@ namespace TCPClient
         {
             try
             {
-                client = new TcpClient(clientAddress);
-                // client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                client.Connect(this.BindIP, this.BindPort);
+                client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 client.Connect(serverAddress);
 
                 // TextBox로부터 들어온 보낼 메세지를 TCP 통신을 위한 byte data로 변환

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -123,7 +124,9 @@ namespace NetworkTCPExample
         public TcpListener server = null; // System.Net.Socket
         public TcpClient client = null;
         public IPEndPoint localAddress; // System.Net
-
+        Thread ReceiveThread;
+        private bool isConnected = false;
+        private StreamReader reader;
 
         // 네트워크 스트림 객체 생성. 데이터의 입출력 처리의 중간자 역할
         //// 데이터,패킷,비트 등의 일련의 연속성을 갖는 흐름을 의미
@@ -151,9 +154,15 @@ namespace NetworkTCPExample
                 // 서버 시작
                 server.Start();
 
+                ReceiveThread = new Thread(ReceiveFunc);
+                ReceiveThread.Start();
+
+                client = server.AcceptTcpClient();
+                isConnected = true;
+                reader = new StreamReader(stream);
+
                 while (true)
                 {
-                    client = server.AcceptTcpClient();
                     stream = client.GetStream();
                     ManagedStream();
                 }
@@ -162,6 +171,19 @@ namespace NetworkTCPExample
             catch (SocketException ex)
             {
 
+            }
+        }
+
+        private void ReceiveFunc(object obj)
+        {
+            while (isConnected)
+            {
+                Thread.Sleep(1);
+                if (stream.CanRead)
+                {
+                    string str = reader.ReadLine();
+                    this.DataReceiveEvent(str);
+                }
             }
         }
 
@@ -207,6 +229,7 @@ namespace NetworkTCPExample
 
             }
         }
+
     }
 
     public class TCPDataItem
