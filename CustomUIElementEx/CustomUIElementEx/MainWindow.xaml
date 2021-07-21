@@ -12,12 +12,12 @@
             <RowDefinition Height="1*"></RowDefinition>
             <RowDefinition Height="1*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid>
+        <Grid Visibility="Hidden">
             <CheckBox x:Name="WidthHeightChecked" Margin="3" Checked="WidthHeightChecked_Checked"></CheckBox>
             <Button x:Name="CustomUIElementBtn" Margin="3" Click="CustomUIElementBtn_Click"></Button>
         </Grid>
         
-        <local:MyPanel x:Name="MyCustomPanel" Grid.Row="1">
+        <local:MyPanel x:Name="MyCustomPanel" Grid.Row="1" Visibility="Hidden">
             <Label Content="I'm child #1" Panel.ZIndex="1"
            Background="Thistle" />
             <Label Content="I'm child #2" Panel.ZIndex="2"
@@ -26,7 +26,7 @@
            Background="Honeydew" />
         </local:MyPanel>
 
-        <local:TwoColUniformPanel Grid.Row="2">
+        <local:TwoColUniformPanel Grid.Row="2" Visibility="Hidden">
             <Label Content="I'm child #1" Panel.ZIndex="1"
            Background="Thistle" />
             <Label Content="I'm child #2" Panel.ZIndex="2"
@@ -34,5 +34,24 @@
             <Label Content="Third kid" Panel.ZIndex="3"
            Background="Honeydew" />
         </local:TwoColUniformPanel>
+
+        <Grid>
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="EventTestWindowBtn" Content="EventTestWindow" Width="100" Margin="3" 
+                    Click="EventTestWindow_Click"> 
+                </Button>
+                <Button x:Name="DropTargetWindowBtn" Content="DropTargetWindow" Width="100" Margin="3"
+                        Click="DropTargetWindow_Click">
+                </Button>
+            </StackPanel>
+        </Grid>
+        
+        <!-- Click 이벤트 소스는 Button요소 중 하나로, Button요소 중 
+        어떤 것을 클릭하든 이베트를 처리할 기회를 갖는 것은 첫 번째 요소임-->
+        <!--<StackPanel ButtonBase.Click="StackPanel_Click">
+            <Border>
+                <Button></Button>
+            </Border>
+        </StackPanel>-->
     </Grid>
 </Window>
